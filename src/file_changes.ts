@@ -41,7 +41,7 @@ async function getFileChanges(
 
 export async function getAllFileChanges(
   fileGlob: string,
-  baseBranch: string,
+  baseBranch: string
 ): Promise<Map<GitChangeType, string[]>> {
   const fileMap = new Map<GitChangeType, string[]>()
 
