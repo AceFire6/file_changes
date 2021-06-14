@@ -1,8 +1,8 @@
 {
-  "name": "typescript-action",
-  "version": "0.0.0",
+  "name": "changed-file-filter",
+  "version": "0.0.1",
   "private": true,
-  "description": "TypeScript template action",
+  "description": "A customisable filter that uses git to get changed files based on rules and sets them to outputs",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
@@ -15,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/AceFire6/changed_file_filter.git"
   },
   "keywords": [
     "actions",
     "node",
     "setup"
   ],
-  "author": "",
+  "author": "Jethro Muller",
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.2.6"
