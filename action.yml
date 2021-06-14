@@ -1,11 +1,10 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Changed File Filter'
+description: 'A customisable filter that uses git to get changed files based on rules and sets them to outputs'
+author: 'Jethro Muller'
 inputs:
-  milliseconds: # change this
+  change-map:
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: 'A map of changes to find. eg. {"python_files": "*.py", "requirements": "requirements/*.txt"}'
 runs:
   using: 'node12'
   main: 'dist/index.js'
