@@ -9,6 +9,7 @@ type ChangeMap = [string, ConfigMap]
 interface Inputs {
   branchName: string
   changeMap: ChangeMap[]
+  fileChangeFindCommand: string
 }
 
 async function getConfigInput(
@@ -28,11 +29,14 @@ async function getConfigInput(
 }
 
 export async function getInputs(): Promise<Inputs> {
-  const baseBranchName = core.getInput('base branch')
+  const baseBranchName = core.getInput('base-branch')
   core.debug(`Base Branch Name - ${baseBranchName}`)
 
-  const changeMap = await getConfigInput('change map')
+  const fileChangeFindCommand = core.getInput('command', {required: false})
+  core.debug(`Command - ${fileChangeFindCommand}`)
+
+  const changeMap = await getConfigInput('change-map')
   core.debug(`Change Map - ${changeMap}`)
 
-  return {branchName: baseBranchName, changeMap}
+  return {branchName: baseBranchName, changeMap, fileChangeFindCommand}
 }
