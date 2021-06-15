@@ -8,7 +8,7 @@ export const GitChange = {
 } as const
 export type GitChangeType = typeof GitChange[keyof typeof GitChange]
 
-async function getFileChanges(
+export async function getFileChanges(
   fileGlob: string,
   baseBranch: string,
   changeType: GitChangeType
