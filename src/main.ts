@@ -3,15 +3,22 @@ import {getAllFileChanges, GitChange, GitChangeType} from './file_changes'
 
 async function run(): Promise<void> {
   try {
-    const baseBranchName = core.getInput('base-branch')
-    const changeMapJSON = core.getInput('change-map')
+    const baseBranchName = core.getInput('base branch')
+    core.debug(`Base Branch Name - ${baseBranchName}`)
+
+    const changeMapJSON = core.getInput('change map')
+    core.debug(`Change Map - ${changeMapJSON}`)
+
     const changeMap = JSON.parse(changeMapJSON)
     if (typeof changeMap !== 'object') {
       core.setFailed('You must provide a JSON map for change-map input')
       return
     }
 
-    const separateDeletesJSON = core.getInput('separate-deletes')
+    const separateDeletesJSON = core.getInput('separate deletes', {
+      required: false
+    })
+    core.debug(`Separate Deletes - ${separateDeletesJSON}`)
     const separateDeletes = JSON.parse(separateDeletesJSON)
     if (typeof separateDeletes !== 'boolean') {
       core.setFailed('You must provide a boolean for separate-deletes input')
@@ -26,9 +33,11 @@ async function run(): Promise<void> {
 
     let anyFilesChanged = false
     for (const fileType of Object.keys(changeMap)) {
-      const glob = changeMap.get(fileType)
-      const fileChangeMap: Map<GitChangeType, string[]> =
-        await getAllFileChanges(glob, baseBranchName)
+      const glob = changeMap[fileType]
+      const fileChangeMap: Map<
+        GitChangeType,
+        string[]
+      > = await getAllFileChanges(glob, baseBranchName)
 
       const addedChanges = fileChangeMap.get(GitChange.ADDED) || []
       const changedChanges = fileChangeMap.get(GitChange.CHANGED) || []
