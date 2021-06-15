@@ -5,6 +5,10 @@ inputs:
   base-branch:
     required: true
     description: 'The name of the branch being compared to. ${{ github.base_ref }} should work'
+  command:
+    required: false
+    description: 'The command to run to get the file changes, will be run like $ <command> <glob>'
+    default: 'git diff --name-status --no-renames ${{ github.base_ref }}'
   change-map:
     required: true
     description: >-
