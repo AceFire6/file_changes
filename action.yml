@@ -8,7 +8,7 @@ inputs:
   command:
     required: false
     description: 'The command to run to get the file changes, will be run like $ <command> <glob>'
-    default: 'git diff --name-status --no-renames ${{ github.base_ref }}'
+    default: 'git diff --name-status --no-renames'
   change-map:
     required: true
     description: >-
