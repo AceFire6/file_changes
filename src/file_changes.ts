@@ -28,9 +28,14 @@ export async function getFileChanges(
     throw new Error(`Failed to get files - ${stderr}`)
   }
 
-  return stdout.split('\n').map(value => {
-    return value.replace(grepKey, '')
-  })
+  return stdout
+    .split('\n')
+    .filter(value => {
+      return value !== ''
+    })
+    .map(value => {
+      return value.replace(grepKey, '')
+    })
 }
 
 export async function getAllFileChanges(
