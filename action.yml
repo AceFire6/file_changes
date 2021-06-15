@@ -7,11 +7,10 @@ inputs:
     description: 'The name of the branch being compared to. ${{ github.base_ref }} should work'
   change-map:
     required: true
-    description: 'A map of changes to find. eg. {"python_files": "*.py", "requirements": "requirements/*.txt"}'
-  separate-deletes:
-    required: false
-    description: 'A boolean indicating whether or not the deleted files should be separated into their own deleted_{name} output'
-    default: 'false'
+    description: >-
+      A multi-line map of changes to find.
+      eg. python_files: "*.py", false.
+      The final boolean determines if we separate out floats
 outputs:
   any-matches:
     description: 'Any glob matches found'
