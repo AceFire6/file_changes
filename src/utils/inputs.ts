@@ -1,17 +1,16 @@
 import * as core from '@actions/core'
 
 type ConfigArray = [string, boolean?]
-type ChangeMap = [string, ConfigArray][]
 
 interface Inputs {
   branchName: string
-  changeMap: ChangeMap
+  changeMap: ConfigArray[]
 }
 
 async function getConfigInput(
   name: string,
   options?: core.InputOptions
-): Promise<ChangeMap> {
+): Promise<ConfigArray[]> {
   return core
     .getInput(name, options)
     .split('\n')
