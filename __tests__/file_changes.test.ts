@@ -1,12 +1,15 @@
-import {getAllFileChanges, getFileChanges, GitChange, GitChangeType} from '../src/file_changes'
+import {
+  getAllFileChanges,
+  getFileChanges,
+  GitChange,
+  GitChangeType
+} from '../src/file_changes'
 import {getExecOutput} from '@actions/exec'
 import {mocked} from 'ts-jest/utils'
-
 
 jest.mock('@actions/exec')
 const mockedExec = mocked(getExecOutput, true)
 const baseBranch = 'main'
-
 
 describe('getFileChanges uses GitChange', () => {
   test('uses A\\t for GitChange.ADDED', async () => {
@@ -14,7 +17,9 @@ describe('getFileChanges uses GitChange', () => {
 
     await getFileChanges('*.txt', baseBranch, GitChange.ADDED)
 
-    expect(mockedExec).toHaveBeenCalledWith(`/bin/bash -c "git diff --name-status --no-renames ${baseBranch} | grep -E A\t"`)
+    expect(mockedExec).toHaveBeenCalledWith(
+      `/bin/bash -c "git diff --name-status --no-renames ${baseBranch} | grep -E A\t"`
+    )
   })
 
   test('uses M\\t for GitChange.CHANGED', async () => {
@@ -22,7 +27,9 @@ describe('getFileChanges uses GitChange', () => {
 
     await getFileChanges('*.txt', baseBranch, GitChange.CHANGED)
 
-    expect(mockedExec).toHaveBeenCalledWith(`/bin/bash -c "git diff --name-status --no-renames ${baseBranch} | grep -E M\t"`)
+    expect(mockedExec).toHaveBeenCalledWith(
+      `/bin/bash -c "git diff --name-status --no-renames ${baseBranch} | grep -E M\t"`
+    )
   })
 
   test('uses D\\t for GitChange.DELETED', async () => {
@@ -30,10 +37,11 @@ describe('getFileChanges uses GitChange', () => {
 
     await getFileChanges('*.txt', baseBranch, GitChange.DELETED)
 
-    expect(mockedExec).toHaveBeenCalledWith(`/bin/bash -c "git diff --name-status --no-renames ${baseBranch} | grep -E D\t"`)
+    expect(mockedExec).toHaveBeenCalledWith(
+      `/bin/bash -c "git diff --name-status --no-renames ${baseBranch} | grep -E D\t"`
+    )
   })
 })
-
 
 describe('getAllFileChanges', () => {
   test('returns a map', async () => {
@@ -49,11 +57,10 @@ describe('getAllFileChanges', () => {
     const gitChangedFiles = 'M\tchanged_file1.txt\nM\tchanged_file2.txt\n'
     const gitDeletedFiles = 'D\tdeleted_file1.txt\nD\tdeleted_file2.txt\n'
 
-    mockedExec.mockResolvedValueOnce(
-      {stdout: gitAddedFiles, stderr: '', exitCode: 0}
-    ).mockResolvedValueOnce(
-      {stdout: gitChangedFiles, stderr: '', exitCode: 0}
-    ).mockResolvedValue({stdout: gitDeletedFiles, stderr: '', exitCode: 0})
+    mockedExec
+      .mockResolvedValueOnce({stdout: gitAddedFiles, stderr: '', exitCode: 0})
+      .mockResolvedValueOnce({stdout: gitChangedFiles, stderr: '', exitCode: 0})
+      .mockResolvedValue({stdout: gitDeletedFiles, stderr: '', exitCode: 0})
 
     const result = await getAllFileChanges('*.txt', baseBranch)
     const expectedResults: [GitChangeType, string[]][] = [

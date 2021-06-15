@@ -27,10 +27,8 @@ async function run(): Promise<void> {
     let anyFilesChanged = false
     for (const fileType of Object.keys(changeMap)) {
       const glob = changeMap.get(fileType)
-      const fileChangeMap: Map<
-        GitChangeType,
-        string[]
-      > = await getAllFileChanges(glob, baseBranchName)
+      const fileChangeMap: Map<GitChangeType, string[]> =
+        await getAllFileChanges(glob, baseBranchName)
 
       const addedChanges = fileChangeMap.get(GitChange.ADDED) || []
       const changedChanges = fileChangeMap.get(GitChange.CHANGED) || []
