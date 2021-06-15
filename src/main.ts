@@ -25,7 +25,6 @@ async function run(): Promise<void> {
       return
     }
 
-    // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
     core.debug(
       `Parsing ${changeMapJSON} with separate deletes ${separateDeletes} ...`
     )
@@ -34,10 +33,7 @@ async function run(): Promise<void> {
     let anyFilesChanged = false
     for (const fileType of Object.keys(changeMap)) {
       const glob = changeMap[fileType]
-      const fileChangeMap: Map<
-        GitChangeType,
-        string[]
-      > = await getAllFileChanges(glob, baseBranchName)
+      const fileChangeMap = await getAllFileChanges(glob, baseBranchName)
 
       const addedChanges = fileChangeMap.get(GitChange.ADDED) || []
       const changedChanges = fileChangeMap.get(GitChange.CHANGED) || []
@@ -45,7 +41,7 @@ async function run(): Promise<void> {
       const deletedFileChanges = fileChangeMap.get(GitChange.DELETED) || []
 
       const anyFileTypeFilesChanged =
-        !!existingFileChanges.length || !!deletedFileChanges
+        !!existingFileChanges.length || !!deletedFileChanges.length
       anyFilesChanged = anyFilesChanged || anyFileTypeFilesChanged
 
       if (separateDeletes) {
