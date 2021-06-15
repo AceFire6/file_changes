@@ -13,14 +13,8 @@ export async function getFileChanges(
   baseBranch: string,
   changeType: GitChangeType
 ): Promise<string[]> {
-  let grepKey: string
-  if (changeType === GitChange.ADDED) {
-    grepKey = 'A\t'
-  } else if (changeType === GitChange.CHANGED) {
-    grepKey = 'M\t'
-  } else {
-    grepKey = 'D\t'
-  }
+  const grepKeyMap = {ADDED: 'A', CHANGED: 'M', DELETED: 'D'}
+  const grepKey = `${grepKeyMap[changeType]}\t`
 
   const gitCommand = `git diff --name-status --no-renames ${baseBranch}`
   const grepCommand = `grep -E ${grepKey}`
