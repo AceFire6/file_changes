@@ -1,16 +1,20 @@
 import * as core from '@actions/core'
 
-type ConfigArray = [string, boolean?]
+interface ConfigMap {
+  glob: string
+  separateDeleted?: boolean
+}
+type ChangeMap = [string, ConfigMap]
 
 interface Inputs {
   branchName: string
-  changeMap: ConfigArray[]
+  changeMap: ChangeMap[]
 }
 
 async function getConfigInput(
   name: string,
   options?: core.InputOptions
-): Promise<ConfigArray[]> {
+): Promise<ChangeMap[]> {
   return core
     .getInput(name, options)
     .split('\n')
@@ -18,7 +22,8 @@ async function getConfigInput(
     .filter(x => x !== '')
     .map(value => {
       const [fileType, config] = value.split(':').map(s => s.trim())
-      return [fileType, JSON.parse(config)]
+      const [glob, separateDeleted] = JSON.parse(config)
+      return [fileType, {glob, separateDeleted}]
     })
 }
 
