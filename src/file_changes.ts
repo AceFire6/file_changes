@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import {getExecOutput} from '@actions/exec'
+import {FilterPattern} from './utils/inputs'
 
 export const GitChange = {
   ADDED: 'ADDED',
@@ -8,50 +9,54 @@ export const GitChange = {
 } as const
 export type GitChangeType = typeof GitChange[keyof typeof GitChange]
 
-export async function getFileChanges(
-  fileGlob: string,
-  baseBranch: string,
-  changeType: GitChangeType
+interface FileChangeMap {
+  ADDED: string[]
+  CHANGED: string[]
+  DELETED: string[]
+}
+
+export async function getFileChangesWithCommand(
+  command: string
 ): Promise<string[]> {
-  const grepKeyMap = {ADDED: 'A', CHANGED: 'M', DELETED: 'D'}
-  const grepKey = `${grepKeyMap[changeType]}\t`
-
-  const gitCommand = `git diff --name-status --no-renames ${baseBranch}`
-  const grepCommand = `grep -E ${grepKey}`
-
-  const {stdout: stdout, stderr: stderr} = await getExecOutput(
-    `/bin/bash -c "${gitCommand} | ${grepCommand}"`
+  const {exitCode, stdout, stderr} = await getExecOutput(
+    `/bin/bash -c "${command}"`
   )
   core.debug(`stdout = ${stdout} and stderr = ${stderr}`)
 
-  if (stderr !== '') {
-    throw new Error(`Failed to get files - ${stderr}`)
+  if (exitCode !== 0 || stderr !== '') {
+    throw new Error(`Failed to get files - Exit Code ${exitCode} - ${stderr}`)
   }
 
-  return stdout
-    .split('\n')
-    .filter(value => {
-      return value !== ''
-    })
-    .map(value => {
-      return value.replace(grepKey, '')
-    })
+  return stdout.split('\n').filter(line => line !== '')
 }
 
-export async function getAllFileChanges(
-  fileGlob: string,
-  baseBranch: string
-): Promise<Map<GitChangeType, string[]>> {
-  const fileMap = new Map<GitChangeType, string[]>()
-
-  for (const [, changeType] of Object.entries(GitChange)) {
-    core.debug(`Look for ${changeType} globs ${fileGlob}`)
-
-    const addedFiles = await getFileChanges(fileGlob, baseBranch, changeType)
-    fileMap.set(changeType, addedFiles)
-
-    core.debug(`Found ${changeType} ${addedFiles}`)
+function getChangeTypeMap(
+  fileChange: string,
+  changeFilters: FilterPattern
+): [GitChangeType, string] | undefined {
+  for (const [changeType, lineStart] of Object.entries(changeFilters)) {
+    if (fileChange.startsWith(lineStart)) {
+      return [changeType as GitChangeType, fileChange.replace(lineStart, '')]
+    }
   }
+}
 
-  return fileMap
+export async function parseFileChanges(
+  fileChanges: string[],
+  changeFilters: FilterPattern
+): Promise<FileChangeMap> {
+  const fileChangeMap = {ADDED: [], CHANGED: [], DELETED: []}
+
+  return fileChanges.reduce((accumulator, fileChange) => {
+    const changeTypeMap = getChangeTypeMap(fileChange, changeFilters)
+    if (typeof changeTypeMap === 'undefined') {
+      return accumulator
+    }
+
+    const [changeType, parsedFileChange] = changeTypeMap
+    return {
+      ...accumulator,
+      [changeType]: [...accumulator[changeType], parsedFileChange]
+    }
+  }, fileChangeMap)
 }
