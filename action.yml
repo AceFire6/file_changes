@@ -9,6 +9,13 @@ inputs:
     required: false
     description: 'The command to run to get the file changes can contain {glob} and {branchName} to specify replacements'
     default: 'git diff --name-status --no-renames {branchName} {glob}'
+  change-filters:
+    required: false
+    description: >-
+      A comma separated list of key value pairs (colon separated).
+      Any defined keys will be kept, others discarded.
+      Spaces around commas will not be trimmed to preserve all whitespace.
+    default: 'ADDED:A\t,CHANGED:M\t,DELETED:D\t'
   change-map:
     required: true
     description: >-
