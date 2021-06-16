@@ -14,9 +14,34 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ./
+        id: action-test
         with:
           base-branch: "test_changes"
           command: "cat ./__tests__/{branchName}.txt"
           change-map: >-
-            test: {"glob": "*.txt"}
-            test-separate: {"glob": "*.txt", separateDeleted: true}
+            text: {"glob": "*.txt"}
+            text-separate: {"glob": "*.txt", separateDeleted: true}
+            missing: {"glob": "*.jpg"}
+
+      - name: Print Test Outputs
+        run: |
+          echo "Result => any-matches: ${{ steps.action-test.outputs.any-matches }}"
+          echo "Result => text: ${{ steps.action-test.outputs.text }}"
+          echo "Result => any-text: ${{ steps.action-test.outputs.any-text }}"
+          echo "Result => deleted-text: ${{ steps.action-test.outputs.deleted-text }}"
+          echo "Result => text-separate: ${{ steps.action-test.outputs.text-separate }}"
+          echo "Result => any-text-separate: ${{ steps.action-test.outputs.any-text-separate }}"
+          echo "Result => deleted-text-separate: ${{ steps.action-test.outputs.deleted-text-separate }}"
+
+      - name: Fail If Test Outputs Incorrect
+        if: |
+          steps.action-test.outputs.any-matches != 'true' ||
+          steps.action-test.outputs.text != 'added_text.txt changed_text.txt deleted_text.txt' ||
+          steps.action-test.outputs.any-text != 'true' ||
+          steps.action-test.outputs.deleted-text != '' ||
+          steps.action-test.outputs.text-separate != 'added_text.txt changed_text.txt' ||
+          steps.action-test.outputs.any-text-separate != 'true' ||
+          steps.action-test.outputs.deleted-text-separate != 'deleted_text.txt' ||
+          steps.action-test.outputs.missing != '' ||
+          steps.action-test.outputs.any-missing != 'false'
+        run: exit 1
