@@ -66,4 +66,10 @@ describe('test getChangeTypeMap', () => {
       expect(result).toEqual([gitChange, expectedFileChange])
     }
   )
+
+  test('returns undefined if no match is found', async () => {
+    const result = await getChangeTypeMap('ZZ\tfile.txt', changeFilters)
+
+    expect(result).toEqual(undefined)
+  })
 })
