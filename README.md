@@ -29,7 +29,7 @@ change-map:
   required: true
   description: >-
     A multi-line map of changes to find.
-    eg. python_files: {"glob": "*.py", "separateDeletes": false}
+    eg. python_files: {"glob": "*.py", "separateDeleted": false}
     requirements: {"glob": "requirements/*.txt"}
     The final boolean determines if we separate out floats
 ```
@@ -39,7 +39,7 @@ eg. For a Python project where you want a list of Python files changed with and 
 uses: AceFire6/changed_file_filter@v1
 with:
   change-map: |
-    python: {glob: "*.py", separateDeletes: true}
+    python: {glob: "*.py", separateDeleted: true}
     requirements: {glob: "requirements/*.txt"}
     migrations: {glob: "**/migrations/*.py"}
 ```
