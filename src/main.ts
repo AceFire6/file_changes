@@ -1,59 +1,55 @@
 import * as core from '@actions/core'
-import {getAllFileChanges, GitChange, GitChangeType} from './file_changes'
+import {getFileChangesWithCommand, parseFileChanges} from './file_changes'
+import {getInputs} from './utils/inputs'
 
 async function run(): Promise<void> {
   try {
-    const baseBranchName = core.getInput('base branch')
-    core.debug(`Base Branch Name - ${baseBranchName}`)
-
-    const changeMapJSON = core.getInput('change map')
-    core.debug(`Change Map - ${changeMapJSON}`)
-
-    const changeMap = JSON.parse(changeMapJSON)
-    if (typeof changeMap !== 'object') {
-      core.setFailed('You must provide a JSON map for change-map input')
-      return
-    }
-
-    const separateDeletesJSON = core.getInput('separate deletes', {
-      required: false
-    })
-    core.debug(`Separate Deletes - ${separateDeletesJSON}`)
-    const separateDeletes = JSON.parse(separateDeletesJSON)
-    if (typeof separateDeletes !== 'boolean') {
-      core.setFailed('You must provide a boolean for separate-deletes input')
-      return
-    }
-
-    core.debug(
-      `Parsing ${changeMapJSON} with separate deletes ${separateDeletes} ...`
-    )
+    // Get Inputs
+    const {fileChangeFindCommand, changeMap, filterPatterns} = await getInputs()
     core.debug(`Starting ${new Date().toTimeString()}`)
 
+    // Get & then process files
     let anyFilesChanged = false
-    for (const fileType of Object.keys(changeMap)) {
-      const glob = changeMap[fileType]
-      const fileChangeMap = await getAllFileChanges(glob, baseBranchName)
+    for (const {
+      label,
+      config: {glob, separateDeleted}
+    } of changeMap) {
+      // Generate command to get files for current glob
+      const fileChangeCommand = fileChangeFindCommand.replace('{glob}', glob)
+      // Get files for glob
+      const fileChanges = await getFileChangesWithCommand(fileChangeCommand)
 
-      const addedChanges = fileChangeMap.get(GitChange.ADDED) || []
-      const changedChanges = fileChangeMap.get(GitChange.CHANGED) || []
-      let existingFileChanges = addedChanges.concat(changedChanges)
-      const deletedFileChanges = fileChangeMap.get(GitChange.DELETED) || []
+      // Group the file list into ADDED, CHANGED, and DELETE files
+      const {
+        ADDED: addedFiles,
+        CHANGED: changedFiles,
+        DELETED: deletedFiles
+      } = await parseFileChanges(fileChanges, filterPatterns)
 
-      const anyFileTypeFilesChanged =
-        !!existingFileChanges.length || !!deletedFileChanges.length
-      anyFilesChanged = anyFilesChanged || anyFileTypeFilesChanged
+      // Group ADDED & CHANGED - these files can still be operated on directly
+      let existingFileChanges = addedFiles.concat(changedFiles)
+      // Check if there are any changes in ADDED, CHANGED, or DELETED
+      const globChanges = !!existingFileChanges.length || !!deletedFiles.length
+      // Figure out if we have had any file changes at all
+      anyFilesChanged ||= globChanges
 
-      if (separateDeletes) {
-        core.setOutput(`deleted-${fileType}`, deletedFileChanges)
+      if (separateDeleted) {
+        // If we must separate deleted, we do
+        core.setOutput(`deleted-${label}`, deletedFiles)
       } else {
-        existingFileChanges = existingFileChanges.concat(deletedFileChanges)
+        // If we don't need to separate deleted we add them to
+        // the existing group of ADDED & CHANGED
+        existingFileChanges = existingFileChanges.concat(deletedFiles)
       }
 
-      core.setOutput(fileType, existingFileChanges.join(' '))
-      core.setOutput(`any-${fileType}`, anyFileTypeFilesChanged)
+      // Set the plain output
+      core.setOutput(label, existingFileChanges.join(' '))
+      // Set the boolean flag to indicate any changes were found for this label
+      core.setOutput(`any-${label}`, globChanges)
     }
 
+    // Set the boolean flag to indicate that at least one
+    // of the labels had a match
     core.setOutput(`any-matches`, anyFilesChanged)
     core.debug(`Finished ${new Date().toTimeString()}`)
   } catch (error) {
