@@ -1,74 +1,47 @@
-import {
-  getAllFileChanges,
-  getFileChanges,
-  GitChange,
-  GitChangeType
-} from '../src/file_changes'
+import {getFileChangesWithCommand} from '../src/file_changes'
 import {getExecOutput} from '@actions/exec'
 import {mocked} from 'ts-jest/utils'
 
 jest.mock('@actions/exec')
 const mockedExec = mocked(getExecOutput, true)
 const baseBranch = 'main'
+const command = `git diff --name-status --no-renames ${baseBranch} '*.txt'`
 
-describe('getFileChanges uses GitChange', () => {
-  test('uses A\\t for GitChange.ADDED', async () => {
+describe('test getFileChangesWithCommand', () => {
+  test('makes the correct exec call', async () => {
     mockedExec.mockResolvedValue({stdout: '', stderr: '', exitCode: 0})
 
-    await getFileChanges('*.txt', baseBranch, GitChange.ADDED)
+    await getFileChangesWithCommand(command)
 
-    expect(mockedExec).toHaveBeenCalledWith(
-      `/bin/bash -c "git diff --name-status --no-renames ${baseBranch} | grep -E A\t"`
+    expect(mockedExec).toHaveBeenCalledWith(`/bin/bash -c "${command}"`)
+  })
+
+  test('makes the correct exec call', async () => {
+    mockedExec.mockResolvedValue({
+      stdout: ' A\n B\n C ',
+      stderr: '',
+      exitCode: 0
+    })
+
+    const result = await getFileChangesWithCommand(command)
+
+    expect(result).toEqual(['A', 'B', 'C'])
+  })
+
+  test('throws error on error code other than 0', async () => {
+    mockedExec.mockResolvedValue({stdout: '', stderr: '', exitCode: 1})
+
+    await expect(getFileChangesWithCommand(command)).rejects.toThrow(
+      new Error('Failed to get files - Exit Code 1 - ')
     )
   })
 
-  test('uses M\\t for GitChange.CHANGED', async () => {
-    mockedExec.mockResolvedValue({stdout: '', stderr: '', exitCode: 0})
+  test('throws error if anything written to stderr', async () => {
+    const stderr = 'Mistakes were made!'
+    mockedExec.mockResolvedValue({stdout: '', stderr, exitCode: 0})
 
-    await getFileChanges('*.txt', baseBranch, GitChange.CHANGED)
-
-    expect(mockedExec).toHaveBeenCalledWith(
-      `/bin/bash -c "git diff --name-status --no-renames ${baseBranch} | grep -E M\t"`
+    await expect(getFileChangesWithCommand(command)).rejects.toThrow(
+      new Error(`Failed to get files - Exit Code 0 - ${stderr}`)
     )
-  })
-
-  test('uses D\\t for GitChange.DELETED', async () => {
-    mockedExec.mockResolvedValue({stdout: '', stderr: '', exitCode: 0})
-
-    await getFileChanges('*.txt', baseBranch, GitChange.DELETED)
-
-    expect(mockedExec).toHaveBeenCalledWith(
-      `/bin/bash -c "git diff --name-status --no-renames ${baseBranch} | grep -E D\t"`
-    )
-  })
-})
-
-describe('getAllFileChanges', () => {
-  test('returns a map', async () => {
-    mockedExec.mockResolvedValue({stdout: '', stderr: '', exitCode: 0})
-
-    const result = await getAllFileChanges('*.txt', baseBranch)
-
-    expect(result).toBeInstanceOf(Map)
-  })
-
-  test('returns files correctly mapped', async () => {
-    const gitAddedFiles = 'A\tadded_file1.txt\nA\tadded_file2.txt\n'
-    const gitChangedFiles = 'M\tchanged_file1.txt\nM\tchanged_file2.txt\n'
-    const gitDeletedFiles = 'D\tdeleted_file1.txt\nD\tdeleted_file2.txt\n'
-
-    mockedExec
-      .mockResolvedValueOnce({stdout: gitAddedFiles, stderr: '', exitCode: 0})
-      .mockResolvedValueOnce({stdout: gitChangedFiles, stderr: '', exitCode: 0})
-      .mockResolvedValue({stdout: gitDeletedFiles, stderr: '', exitCode: 0})
-
-    const result = await getAllFileChanges('*.txt', baseBranch)
-    const expectedResults: [GitChangeType, string[]][] = [
-      [GitChange.ADDED, ['added_file1.txt', 'added_file2.txt']],
-      [GitChange.CHANGED, ['changed_file1.txt', 'changed_file2.txt']],
-      [GitChange.DELETED, ['deleted_file1.txt', 'deleted_file2.txt']]
-    ]
-
-    expect(result).toEqual(new Map<GitChangeType, string[]>(expectedResults))
   })
 })
