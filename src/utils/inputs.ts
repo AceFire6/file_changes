@@ -21,12 +21,9 @@ interface Inputs {
   fileChangeFindCommand: string
 }
 
-async function getChangeMapInput(
-  name: string,
-  options?: core.InputOptions
-): Promise<ChangeMap[]> {
+async function getChangeMapInput(): Promise<ChangeMap[]> {
   return core
-    .getInput(name, options)
+    .getInput('change-map')
     .split('\n')
     .map(s => s.trim())
     .filter(x => x !== '')
@@ -37,12 +34,9 @@ async function getChangeMapInput(
     })
 }
 
-async function getFilterPatterns(
-  name: string,
-  options?: core.InputOptions
-): Promise<FilterPattern> {
+async function getFilterPatterns(): Promise<FilterPattern> {
   // Default: '{ADDED:"A\t",CHANGED:"M\t",DELETED:"D\t"}'
-  const filterInput = core.getInput(name, options)
+  const filterInput = core.getInput('filter-patterns', {required: false})
   const filterPatterns: FilterPattern = JSON.parse(filterInput)
   if (typeof filterPatterns !== 'object') {
     throw new Error('filter-pattern must be a valid JSON object')
@@ -63,12 +57,10 @@ export async function getInputs(): Promise<Inputs> {
   )
   core.debug(`Command - ${fileChangeFindCommand}`)
 
-  const filterPatterns = await getFilterPatterns('filter-patterns', {
-    required: false
-  })
+  const filterPatterns = await getFilterPatterns()
   core.debug(`Change Filters - ${filterPatterns}`)
 
-  const changeMap = await getChangeMapInput('change-map')
+  const changeMap = await getChangeMapInput()
   core.debug(`Change Map - ${changeMap}`)
 
   return {changeMap, filterPatterns, fileChangeFindCommand}
