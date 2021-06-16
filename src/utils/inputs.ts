@@ -7,7 +7,6 @@ interface ConfigMap {
 type ChangeMap = [string, ConfigMap]
 
 interface Inputs {
-  branchName: string
   changeMap: ChangeMap[]
   fileChangeFindCommand: string
 }
@@ -32,11 +31,16 @@ export async function getInputs(): Promise<Inputs> {
   const baseBranchName = core.getInput('base-branch')
   core.debug(`Base Branch Name - ${baseBranchName}`)
 
-  const fileChangeFindCommand = core.getInput('command', {required: false})
+  let fileChangeFindCommand = core.getInput('command', {required: false})
+  // default is `git diff --name-status --no-renames {branchName} {glob}`
+  fileChangeFindCommand = fileChangeFindCommand.replace(
+    '{branchName}',
+    baseBranchName
+  )
   core.debug(`Command - ${fileChangeFindCommand}`)
 
   const changeMap = await getConfigInput('change-map')
   core.debug(`Change Map - ${changeMap}`)
 
-  return {branchName: baseBranchName, changeMap, fileChangeFindCommand}
+  return {changeMap, fileChangeFindCommand}
 }
