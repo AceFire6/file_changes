@@ -1,34 +1,98 @@
-<p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
-</p>
+# Git File Change Filter
+[![GitHub Actions](https://github.com/AceFire6/changed_file_filter/actions/workflows/test_simcontrol.yml/badge.svg)](https://github.com/AceFire6/changed_file_filter/actions/workflows/test.yml/badge.svg)
 
-# Create a JavaScript Action using TypeScript
+## Using the Action
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
+---
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.  
+### Inputs
+```yaml
+base-branch:
+  required: false
+  description: 'The name of the branch being compared to. Uses $GITHUB_BASE_REF if not set'
+  default: $GITHUB_BASE_REF
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+command:
+  required: false
+  description: 'The command to run to get the file changes can contain {glob} and {branchName} to specify replacements'
+  default: 'git diff --name-status --no-renames {branchName} {glob}'
 
-## Create an action from this template
+change-filters:
+  required: false
+  description: >-
+    A comma separated list of key value pairs (colon separated).
+    Any defined keys will be kept, others discarded.
+    Spaces around commas will not be trimmed to preserve all whitespace.
+  default: 'ADDED:A\t,CHANGED:M\t,DELETED:D\t'
 
-Click the `Use this Template` and provide the new repo details for your action
+change-map:
+  required: true
+  description: >-
+    A multi-line map of changes to find.
+    eg. python_files: {glob: "*.py", separateDeletes: false}
+    requirements: {glob: "requirements/*.txt"}
+    The final boolean determines if we separate out floats
+```
 
-## Code in Main
+eg. For a Python project where you want a list of Python files changed with and without deleted files
+```yaml
+uses: AceFire6/changed_file_filter@v1
+with:
+  change-map: |
+    python: {glob: "*.py", separateDeletes: true}
+    requirements: {glob: "requirements/*.txt"}
+    migrations: {glob: "**/migrations/*.py"}
+```
+
+### Outputs
+```yaml
+any-matches:
+  description: 'Any glob matches found'
+
+# one set of outputs for each entry in change-map
+<change-map.0.0>: '<file_changed1> <file_changed2> ...'
+# Value set to make boolean checks simpler - 'true' or 'false'
+# 'false' if there were no changes found
+<change-map.0.0>-any: 'true'
+# If separate deletes key is true
+<change-map.0.0>-deleted: '<file_deleted1> <file_deleted2> ...'
+```
+
+eg. Referring back to the inputs example of a Python project. 
+The is what the outputs would look like assuming the following:
+
+* Added files: `tests/test.py`
+* Changed files: `main.py` `helpers/utils.py` `requirements/api.txt`
+* Deleted files: `utils.py` `requirements/aip.txt`
+
+```yaml
+any-matches: 'true'
+python: 'tests/test.py main.py helpers/utils.py'
+python-any: 'true'
+python-deleted: 'utils.py'
+requirements: 'requirements/api.txt requirements/aip.txt'
+requirements-any: 'true'
+migrations: ''
+migrations-any: 'false'
+```
+
+## Developing
+
+---
 
 > First, you'll need to have a reasonably modern version of `node` handy. This won't work with versions older than 9, for instance.
 
-Install the dependencies  
+### Install the dependencies  
 ```bash
 $ npm install
 ```
 
-Build the typescript and package it for distribution
+### Build the typescript and package it for distribution
 ```bash
 $ npm run build && npm run package
 ```
 
-Run the tests :heavy_check_mark:  
+### Run the tests  
 ```bash
 $ npm test
 
@@ -40,7 +104,7 @@ $ npm test
 ...
 ```
 
-## Change action.yml
+### Change action.yml
 
 The action.yml contains defines the inputs and output for your action.
 
@@ -48,7 +112,7 @@ Update the action.yml with your name, description, inputs and outputs for your a
 
 See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
 
-## Change the Code
+### Change the Code
 
 Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
 
@@ -70,7 +134,7 @@ run()
 
 See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
 
-## Publish to a distribution branch
+### Publish to a distribution branch
 
 Actions are run from GitHub repos so we will checkin the packed dist folder. 
 
@@ -88,7 +152,7 @@ Your action is now published! :rocket:
 
 See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
 
-## Validate
+### Validate
 
 You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
 
@@ -100,6 +164,6 @@ with:
 
 See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
 
-## Usage:
+### Usage:
 
 After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
