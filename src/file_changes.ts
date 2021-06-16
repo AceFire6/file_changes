@@ -27,7 +27,10 @@ export async function getFileChangesWithCommand(
     throw new Error(`Failed to get files - Exit Code ${exitCode} - ${stderr}`)
   }
 
-  return stdout.split('\n').filter(line => line !== '')
+  return stdout
+    .split('\n')
+    .map(s => s.trim())
+    .filter(line => line !== '')
 }
 
 function getChangeTypeMap(
