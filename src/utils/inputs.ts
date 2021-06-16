@@ -6,7 +6,7 @@ interface ConfigMap {
 }
 type ChangeMap = [string, ConfigMap]
 
-interface ChangeFilter {
+export interface ChangeFilter {
   ADDED?: string
   CHANGED?: string
   DELETED?: string
