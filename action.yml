@@ -3,8 +3,9 @@ description: 'A customisable filter that uses git to get changed files based on 
 author: 'Jethro Muller'
 inputs:
   base-branch:
-    required: true
-    description: 'The name of the branch being compared to. ${{ github.base_ref }} should work'
+    required: false
+    description: 'The name of the branch being compared to. Uses $GITHUB_BASE_REF if not set'
+    default: $GITHUB_BASE_REF
   command:
     required: false
     description: 'The command to run to get the file changes can contain {glob} and {branchName} to specify replacements'
