@@ -22,6 +22,7 @@ filter-patterns:
   description: >-
     A comma separated list of key value pairs (colon separated).
     Any defined keys will be kept, others discarded.
+    The matching is done by checking if the file change starts with the pattern.
     Spaces around commas will not be trimmed to preserve all whitespace.
   default: 'ADDED:A\t,CHANGED:M\t,DELETED:D\t'
 
