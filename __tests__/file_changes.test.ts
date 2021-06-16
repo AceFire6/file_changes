@@ -1,7 +1,9 @@
 import {
   getFilteredChangeMap,
   getFileChangesWithCommand,
-  GitChange
+  GitChange,
+  parseFileChanges,
+  GitChangeType
 } from '../src/file_changes'
 import {getExecOutput} from '@actions/exec'
 import {mocked} from 'ts-jest/utils'
@@ -89,5 +91,30 @@ describe('test getFilteredChangeMap', () => {
     const result = await getFilteredChangeMap(['ZZ\tfile.txt'], changeFilters)
 
     expect(result).toEqual([])
+  })
+})
+
+describe('test parseFileChanges', () => {
+  test('returns empty mapping for empty input', async () => {
+    const result = await parseFileChanges([])
+
+    expect(result).toEqual({ADDED: [], CHANGED: [], DELETED: []})
+  })
+
+  test('returns correct mapping for input', async () => {
+    const inputs: [GitChangeType, string][] = [
+      [GitChange.ADDED, 'added_file.txt'],
+      [GitChange.DELETED, 'deleted_file.txt'],
+      [GitChange.CHANGED, 'changed_file.txt']
+    ]
+    const result = await parseFileChanges(inputs)
+
+    const expectedResult = {
+      ADDED: ['added_file.txt'],
+      CHANGED: ['changed_file.txt'],
+      DELETED: ['deleted_file.txt']
+    }
+
+    expect(result).toEqual(expectedResult)
   })
 })
