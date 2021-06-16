@@ -33,7 +33,7 @@ export async function getFileChangesWithCommand(
     .filter(line => line !== '')
 }
 
-function getChangeTypeMap(
+export function getChangeTypeMap(
   fileChange: string,
   changeFilters: FilterPattern
 ): [GitChangeType, string] | undefined {
