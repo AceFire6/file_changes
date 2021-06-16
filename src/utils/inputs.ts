@@ -4,7 +4,10 @@ interface ConfigMap {
   glob: string
   separateDeleted?: boolean
 }
-type ChangeMap = [string, ConfigMap]
+interface ChangeMap {
+  label: string
+  config: ConfigMap
+}
 
 export interface FilterPattern {
   ADDED?: string
@@ -30,7 +33,7 @@ async function getChangeMapInput(
     .map(value => {
       const [label, config] = value.split(':').map(s => s.trim())
       const {glob, separateDeleted} = JSON.parse(config)
-      return [label, {glob, separateDeleted}]
+      return {label, config: {glob, separateDeleted}}
     })
 }
 
