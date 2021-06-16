@@ -28,9 +28,9 @@ async function getChangeMapInput(
     .map(s => s.trim())
     .filter(x => x !== '')
     .map(value => {
-      const [fileType, config] = value.split(':').map(s => s.trim())
+      const [label, config] = value.split(':').map(s => s.trim())
       const {glob, separateDeleted} = JSON.parse(config)
-      return [fileType, {glob, separateDeleted}]
+      return [label, {glob, separateDeleted}]
     })
 }
 
