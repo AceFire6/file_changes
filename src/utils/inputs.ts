@@ -41,16 +41,14 @@ async function getFilterPatterns(
   name: string,
   options?: core.InputOptions
 ): Promise<FilterPattern> {
-  // Default: ADDED:A\t,CHANGED:M\t,DELETED:D\t
+  // Default: '{ADDED:"A\t",CHANGED:"M\t",DELETED:"D\t"}'
   const filterInput = core.getInput(name, options)
-  const filterPatterns: FilterPattern = {}
+  const filterPatterns: FilterPattern = JSON.parse(filterInput)
+  if (typeof filterPatterns !== 'object') {
+    throw new Error('filter-pattern must be a valid JSON object')
+  }
 
-  return filterInput
-    .split(',')
-    .map(s => s.split(':'))
-    .reduce((accumulator, [label, pattern]) => {
-      return {...accumulator, [label]: pattern}
-    }, filterPatterns)
+  return filterPatterns
 }
 
 export async function getInputs(): Promise<Inputs> {
