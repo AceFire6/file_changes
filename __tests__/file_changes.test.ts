@@ -1,5 +1,5 @@
 import {
-  getChangeTypeMap,
+  getFilteredChangeMap,
   getFileChangesWithCommand,
   GitChange
 } from '../src/file_changes'
@@ -51,7 +51,7 @@ describe('test getFileChangesWithCommand', () => {
   })
 })
 
-describe('test getChangeTypeMap', () => {
+describe('test getFilteredChangeMap', () => {
   const changeFilters = {ADDED: 'A\t', CHANGED: 'M\t', DELETED: 'D\t'}
 
   test.concurrent.each([GitChange.ADDED, GitChange.CHANGED, GitChange.DELETED])(
@@ -60,16 +60,34 @@ describe('test getChangeTypeMap', () => {
       const filter = changeFilters[gitChange]
       const fileChange = `${filter}${gitChange.toLowerCase()}_file1.txt`
 
-      const result = await getChangeTypeMap(fileChange, changeFilters)
+      const result = await getFilteredChangeMap([fileChange], changeFilters)
       const expectedFileChange = fileChange.replace(filter, '')
 
-      expect(result).toEqual([gitChange, expectedFileChange])
+      expect(result).toEqual([[gitChange, expectedFileChange]])
     }
   )
 
-  test('returns undefined if no match is found', async () => {
-    const result = await getChangeTypeMap('ZZ\tfile.txt', changeFilters)
+  test('returns correct mapping for multiple inputs', async () => {
+    const fileChanges = [
+      'A\tadded_file.txt',
+      'D\tdeleted_file.txt',
+      'R098\trenamed.txt',
+      'M\tchanged_file.txt'
+    ]
 
-    expect(result).toEqual(undefined)
+    const result = await getFilteredChangeMap(fileChanges, changeFilters)
+    const expectedResults = [
+      [GitChange.ADDED, 'added_file.txt'],
+      [GitChange.DELETED, 'deleted_file.txt'],
+      [GitChange.CHANGED, 'changed_file.txt']
+    ]
+
+    expect(result).toEqual(expectedResults)
+  })
+
+  test('returns empty list if no match is found', async () => {
+    const result = await getFilteredChangeMap(['ZZ\tfile.txt'], changeFilters)
+
+    expect(result).toEqual([])
   })
 })
