@@ -7,11 +7,12 @@ import {getExecOutput} from '@actions/exec'
 import {mocked} from 'ts-jest/utils'
 
 jest.mock('@actions/exec')
-const mockedExec = mocked(getExecOutput, true)
-const baseBranch = 'main'
-const command = `git diff --name-status --no-renames ${baseBranch} '*.txt'`
 
 describe('test getFileChangesWithCommand', () => {
+  const mockedExec = mocked(getExecOutput, true)
+  const baseBranch = 'main'
+  const command = `git diff --name-status --no-renames ${baseBranch} '*.txt'`
+
   test('makes the correct exec call', async () => {
     mockedExec.mockResolvedValue({stdout: '', stderr: '', exitCode: 0})
 
@@ -50,9 +51,9 @@ describe('test getFileChangesWithCommand', () => {
   })
 })
 
-const changeFilters = {ADDED: 'A\t', CHANGED: 'M\t', DELETED: 'D\t'}
-
 describe('test getChangeTypeMap', () => {
+  const changeFilters = {ADDED: 'A\t', CHANGED: 'M\t', DELETED: 'D\t'}
+
   test.concurrent.each([GitChange.ADDED, GitChange.CHANGED, GitChange.DELETED])(
     'returns correct mapping for %s file line',
     async gitChange => {
