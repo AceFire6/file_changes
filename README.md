@@ -53,9 +53,9 @@ any-matches:
 <change-map.0.0>: '<file_changed1> <file_changed2> ...'
 # Value set to make boolean checks simpler - 'true' or 'false'
 # 'false' if there were no changes found
-<change-map.0.0>-any: 'true'
+any-<change-map.0.0>: 'true'
 # If separate deletes key is true
-<change-map.0.0>-deleted: '<file_deleted1> <file_deleted2> ...'
+deleted-<change-map.0.0>: '<file_deleted1> <file_deleted2> ...'
 ```
 
 eg. Referring back to the inputs example of a Python project. 
@@ -68,12 +68,12 @@ The is what the outputs would look like assuming the following:
 ```yaml
 any-matches: 'true'
 python: 'tests/test.py main.py helpers/utils.py'
-python-any: 'true'
-python-deleted: 'utils.py'
+any-python: 'true'
+deleted-python: 'utils.py'
 requirements: 'requirements/api.txt requirements/aip.txt'
-requirements-any: 'true'
+any-requirements: 'true'
 migrations: ''
-migrations-any: 'false'
+any-migrations: 'false'
 ```
 
 ## Developing
