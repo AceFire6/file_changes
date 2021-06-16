@@ -17,7 +17,7 @@ command:
   description: 'The command to run to get the file changes can contain {glob} and {branchName} to specify replacements'
   default: 'git diff --name-status --no-renames {branchName} {glob}'
 
-change-filters:
+filter-patterns:
   required: false
   description: >-
     A comma separated list of key value pairs (colon separated).

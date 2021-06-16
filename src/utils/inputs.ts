@@ -6,7 +6,7 @@ interface ConfigMap {
 }
 type ChangeMap = [string, ConfigMap]
 
-export interface ChangeFilter {
+export interface FilterPattern {
   ADDED?: string
   CHANGED?: string
   DELETED?: string
@@ -14,7 +14,7 @@ export interface ChangeFilter {
 
 interface Inputs {
   changeMap: ChangeMap[]
-  changeFilters: ChangeFilter
+  filterPatterns: FilterPattern
   fileChangeFindCommand: string
 }
 
@@ -34,10 +34,10 @@ async function getChangeMapInput(
     })
 }
 
-async function getChangeFilters(): Promise<ChangeFilter> {
+async function getFilterPatterns(): Promise<FilterPattern> {
   // Default: ADDED:A\t,CHANGED:M\t,DELETED:D\t
   const filterInput = core.getInput('change-filters', {required: false})
-  const changeAccumulator: ChangeFilter = {}
+  const changeAccumulator: FilterPattern = {}
   return filterInput
     .split(',')
     .map(s => s.split(':'))
@@ -58,11 +58,11 @@ export async function getInputs(): Promise<Inputs> {
   )
   core.debug(`Command - ${fileChangeFindCommand}`)
 
-  const changeFilters = await getChangeFilters()
-  core.debug(`Change Filters - ${changeFilters}`)
+  const filterPatterns = await getFilterPatterns()
+  core.debug(`Change Filters - ${filterPatterns}`)
 
   const changeMap = await getChangeMapInput('change-map')
   core.debug(`Change Map - ${changeMap}`)
 
-  return {changeMap, changeFilters, fileChangeFindCommand}
+  return {changeMap, filterPatterns, fileChangeFindCommand}
 }
