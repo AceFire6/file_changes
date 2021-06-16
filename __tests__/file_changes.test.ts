@@ -1,4 +1,8 @@
-import {getFileChangesWithCommand} from '../src/file_changes'
+import {
+  getChangeTypeMap,
+  getFileChangesWithCommand,
+  GitChange
+} from '../src/file_changes'
 import {getExecOutput} from '@actions/exec'
 import {mocked} from 'ts-jest/utils'
 
@@ -44,4 +48,21 @@ describe('test getFileChangesWithCommand', () => {
       new Error(`Failed to get files - Exit Code 0 - ${stderr}`)
     )
   })
+})
+
+const changeFilters = {ADDED: 'A\t', CHANGED: 'M\t', DELETED: 'D\t'}
+
+describe('test getChangeTypeMap', () => {
+  test.concurrent.each([GitChange.ADDED, GitChange.CHANGED, GitChange.DELETED])(
+    'returns correct mapping for %s file line',
+    async gitChange => {
+      const filter = changeFilters[gitChange]
+      const fileChange = `${filter}${gitChange.toLowerCase()}_file1.txt`
+
+      const result = await getChangeTypeMap(fileChange, changeFilters)
+      const expectedFileChange = fileChange.replace(filter, '')
+
+      expect(result).toEqual([gitChange, expectedFileChange])
+    }
+  )
 })
