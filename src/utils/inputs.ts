@@ -34,16 +34,20 @@ async function getChangeMapInput(
     })
 }
 
-async function getFilterPatterns(): Promise<FilterPattern> {
+async function getFilterPatterns(
+  name: string,
+  options?: core.InputOptions
+): Promise<FilterPattern> {
   // Default: ADDED:A\t,CHANGED:M\t,DELETED:D\t
-  const filterInput = core.getInput('change-filters', {required: false})
-  const changeAccumulator: FilterPattern = {}
+  const filterInput = core.getInput(name, options)
+  const filterPatterns: FilterPattern = {}
+
   return filterInput
     .split(',')
     .map(s => s.split(':'))
-    .reduce((accumulator, [filterType, lineStart]) => {
-      return {...accumulator, [filterType]: lineStart}
-    }, changeAccumulator)
+    .reduce((accumulator, [label, pattern]) => {
+      return {...accumulator, [label]: pattern}
+    }, filterPatterns)
 }
 
 export async function getInputs(): Promise<Inputs> {
@@ -58,7 +62,9 @@ export async function getInputs(): Promise<Inputs> {
   )
   core.debug(`Command - ${fileChangeFindCommand}`)
 
-  const filterPatterns = await getFilterPatterns()
+  const filterPatterns = await getFilterPatterns('filter-patterns', {
+    required: false
+  })
   core.debug(`Change Filters - ${filterPatterns}`)
 
   const changeMap = await getChangeMapInput('change-map')
