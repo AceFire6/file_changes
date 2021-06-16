@@ -1,5 +1,9 @@
 import * as core from '@actions/core'
-import {getFileChangesWithCommand, parseFileChanges} from './file_changes'
+import {
+  getFileChangesWithCommand,
+  getFilteredChangeMap,
+  parseFileChanges
+} from './file_changes'
 import {getInputs} from './utils/inputs'
 
 async function run(): Promise<void> {
@@ -19,12 +23,15 @@ async function run(): Promise<void> {
       // Get files for glob
       const fileChanges = await getFileChangesWithCommand(fileChangeCommand)
 
+      // Parse fileChanges into list of tuples with ChangeType and filtered name
+      const filteredChanges = getFilteredChangeMap(fileChanges, filterPatterns)
+
       // Group the file list into ADDED, CHANGED, and DELETE files
       const {
         ADDED: addedFiles,
         CHANGED: changedFiles,
         DELETED: deletedFiles
-      } = await parseFileChanges(fileChanges, filterPatterns)
+      } = await parseFileChanges(filteredChanges)
 
       // Group ADDED & CHANGED - these files can still be operated on directly
       let existingFileChanges = addedFiles.concat(changedFiles)

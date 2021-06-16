@@ -14,6 +14,7 @@ interface FileChangeMap {
   CHANGED: string[]
   DELETED: string[]
 }
+type FilteredChange = [GitChangeType, string]
 
 export async function getFileChangesWithCommand(
   command: string
@@ -33,30 +34,30 @@ export async function getFileChangesWithCommand(
     .filter(line => line !== '')
 }
 
-export function getChangeTypeMap(
-  fileChange: string,
+export function getFilteredChangeMap(
+  fileChanges: string[],
   changeFilters: FilterPattern
-): [GitChangeType, string] | undefined {
-  for (const [changeType, lineStart] of Object.entries(changeFilters)) {
-    if (fileChange.startsWith(lineStart)) {
-      return [changeType as GitChangeType, fileChange.replace(lineStart, '')]
-    }
-  }
+): FilteredChange[] {
+  return fileChanges
+    .map(fileChange => {
+      for (const [changeType, lineStart] of Object.entries(changeFilters)) {
+        if (fileChange.startsWith(lineStart)) {
+          return [
+            changeType as GitChangeType,
+            fileChange.replace(lineStart, '')
+          ]
+        }
+      }
+    })
+    .filter(s => s !== undefined) as FilteredChange[]
 }
 
 export async function parseFileChanges(
-  fileChanges: string[],
-  changeFilters: FilterPattern
+  fileChanges: FilteredChange[]
 ): Promise<FileChangeMap> {
   const fileChangeMap = {ADDED: [], CHANGED: [], DELETED: []}
 
-  return fileChanges.reduce((accumulator, fileChange) => {
-    const changeTypeMap = getChangeTypeMap(fileChange, changeFilters)
-    if (typeof changeTypeMap === 'undefined') {
-      return accumulator
-    }
-
-    const [changeType, parsedFileChange] = changeTypeMap
+  return fileChanges.reduce((accumulator, [changeType, parsedFileChange]) => {
     return {
       ...accumulator,
       [changeType]: [...accumulator[changeType], parsedFileChange]
