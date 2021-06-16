@@ -11,7 +11,7 @@ interface Inputs {
   fileChangeFindCommand: string
 }
 
-async function getConfigInput(
+async function getChangeMapInput(
   name: string,
   options?: core.InputOptions
 ): Promise<ChangeMap[]> {
@@ -39,7 +39,7 @@ export async function getInputs(): Promise<Inputs> {
   )
   core.debug(`Command - ${fileChangeFindCommand}`)
 
-  const changeMap = await getConfigInput('change-map')
+  const changeMap = await getChangeMapInput('change-map')
   core.debug(`Change Map - ${changeMap}`)
 
   return {changeMap, fileChangeFindCommand}
