@@ -6,8 +6,15 @@ interface ConfigMap {
 }
 type ChangeMap = [string, ConfigMap]
 
+interface ChangeFilter {
+  ADDED?: string
+  CHANGED?: string
+  DELETED?: string
+}
+
 interface Inputs {
   changeMap: ChangeMap[]
+  changeFilters: ChangeFilter
   fileChangeFindCommand: string
 }
 
@@ -27,6 +34,18 @@ async function getChangeMapInput(
     })
 }
 
+async function getChangeFilters(): Promise<ChangeFilter> {
+  // Default: ADDED:A\t,CHANGED:M\t,DELETED:D\t
+  const filterInput = core.getInput('change-filters', {required: false})
+  const changeAccumulator: ChangeFilter = {}
+  return filterInput
+    .split(',')
+    .map(s => s.split(':'))
+    .reduce((accumulator, [filterType, lineStart]) => {
+      return {...accumulator, [filterType]: lineStart}
+    }, changeAccumulator)
+}
+
 export async function getInputs(): Promise<Inputs> {
   const baseBranchName = core.getInput('base-branch')
   core.debug(`Base Branch Name - ${baseBranchName}`)
@@ -39,8 +58,11 @@ export async function getInputs(): Promise<Inputs> {
   )
   core.debug(`Command - ${fileChangeFindCommand}`)
 
+  const changeFilters = await getChangeFilters()
+  core.debug(`Change Filters - ${changeFilters}`)
+
   const changeMap = await getChangeMapInput('change-map')
   core.debug(`Change Map - ${changeMap}`)
 
-  return {changeMap, fileChangeFindCommand}
+  return {changeMap, changeFilters, fileChangeFindCommand}
 }
