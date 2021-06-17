@@ -6,12 +6,12 @@ describe('test splitChangeMapString', () => {
   const splitChangeMapString = inputs.__get__('splitChangeMapString')
 
   test('returns correct label/config tuple', () => {
-    const result = splitChangeMapString(
+    const splitChangeMapLine = splitChangeMapString(
       'python_files: {"glob": "*.py", "separateDeleted": true}',
       ':'
     )
 
-    expect(result).toEqual([
+    expect(splitChangeMapLine).toEqual([
       'python_files',
       '{"glob": "*.py", "separateDeleted": true}'
     ])
