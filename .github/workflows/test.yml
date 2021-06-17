@@ -39,7 +39,7 @@ jobs:
           echo "Result => deleted-text-separate: ${{ steps.action-test.outputs.deleted-text-separate }}"
 
       - name: Fail If Test Outputs Incorrect
-        if: |
+        if: >-
           steps.action-test.outputs.any-matches != 'true' ||
           steps.action-test.outputs.text != 'added_text.txt changed_text.txt deleted_text.txt' ||
           steps.action-test.outputs.any-text != 'true' ||
