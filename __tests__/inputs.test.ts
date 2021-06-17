@@ -2,6 +2,22 @@ import rewire from 'rewire'
 
 const inputs = rewire('../lib/utils/inputs')
 
+describe('test splitChangeMapString', () => {
+  const splitChangeMapString = inputs.__get__('splitChangeMapString')
+
+  test('returns correct label/config tuple', () => {
+    const result = splitChangeMapString(
+      'python_files: {"glob": "*.py", "separateDeleted": true}',
+      ':'
+    )
+
+    expect(result).toEqual([
+      'python_files',
+      '{"glob": "*.py", "separateDeleted": true}'
+    ])
+  })
+})
+
 describe('test parseChangeMapInput', () => {
   const parseChangeMapInput = inputs.__get__('parseChangeMapInput')
 
