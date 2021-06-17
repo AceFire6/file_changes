@@ -2,25 +2,14 @@ import rewire from 'rewire'
 
 const inputs = rewire('../lib/utils/inputs')
 
-describe('test getChangeMapInput', () => {
-  const getChangeMapInput = inputs.__get__('getChangeMapInput')
-  let revertProcessSet: () => void
-
-  beforeAll(async () => {
-    process.env['INPUT_CHANGE-MAP'] = `
-      python_files: {"glob": "*.py", "separateDeleted": true}
-      requirements: {"glob": "requirements/*.txt"}
-    `
-    revertProcessSet = inputs.__set__('process.env', process.env)
-  })
-
-  afterAll(async () => {
-    delete process.env['INPUT_CHANGE-MAP']
-    revertProcessSet()
-  })
+describe('test parseChangeMapInput', () => {
+  const parseChangeMapInput = inputs.__get__('parseChangeMapInput')
 
   test('returns correct value', async () => {
-    const changeMap = await getChangeMapInput()
+    const changeMap = await parseChangeMapInput(`
+      python_files: {"glob": "*.py", "separateDeleted": true}
+      requirements: {"glob": "requirements/*.txt"}
+    `)
 
     expect(changeMap).toEqual([
       {label: 'python_files', config: {glob: '*.py', separateDeleted: true}},
