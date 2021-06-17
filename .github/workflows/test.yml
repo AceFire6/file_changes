@@ -23,7 +23,7 @@ jobs:
         with:
           base-branch: "test_changes"
           command: "echo $(cat ./__tests__/{branchName}.txt) | grep {glob}"
-          change-map: >-
+          change-map: |
             text: {"glob": ".txt"}
             text-separate: {"glob": ".txt", "separateDeleted": true}
             missing: {"glob": ".jpg"}
