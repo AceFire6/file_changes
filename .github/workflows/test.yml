@@ -22,7 +22,7 @@ jobs:
         id: action-test
         with:
           base-branch: "test_changes"
-          command: "echo $(cat ./__tests__/{branchName}.txt) | grep {glob} || true"
+          command: "cat ./__tests__/{branchName}.txt | grep {glob} || true"
           change-map: |
             text: {"glob": ".txt"}
             text-separate: {"glob": ".txt", "separateDeleted": true}
