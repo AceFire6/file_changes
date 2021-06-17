@@ -19,6 +19,20 @@ test('test runs does not error', () => {
     env: process.env,
   }
 
-  console.log(`Running ${np} - ${ip} - ${Object.entries(options)}`)
-  console.log(cp.execFileSync(np, [ip], options).toString())
+  const result = cp.execFileSync(np, [ip], options).toString()
+
+  const expectedPngOutput = [
+    '::set-output name=png::added_img.png changed_img.png',
+    '::set-output name=any-png::true'
+  ].join('\n')
+
+  const expectedTxtOutput = [
+    '::set-output name=deleted-txt::deleted_text.txt',
+    '::set-output name=txt::added_text.txt changed_text.txt',
+    '::set-output name=any-txt::true',
+    '::set-output name=any-matches::true',
+  ].join('\n')
+
+  expect(result).toContain(expectedPngOutput)
+  expect(result).toContain(expectedTxtOutput)
 })
