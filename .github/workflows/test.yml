@@ -1,5 +1,10 @@
 name: 'Build & Test Action'
-on: [pull_request]
+on:
+  pull_request:
+  push:
+    branches:
+    - main
+    - 'releases/*'
 
 jobs:
   build-action: # make sure build/ci work properly
