@@ -1,5 +1,0 @@
-A	added_text.txt
-M	changed_text.txt
-D	deleted_text.txt
-A	added_img.png
-M	changed_img.png

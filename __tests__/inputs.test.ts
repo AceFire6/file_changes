@@ -11,7 +11,7 @@ describe('test getChangeMapInput', () => {
       python_files: {"glob": "*.py", "separateDeleted": true}
       requirements: {"glob": "requirements/*.txt"}
     `
-    revertProcessSet = inputs.__set__("process.env", process.env)
+    revertProcessSet = inputs.__set__('process.env', process.env)
   })
 
   afterAll(async () => {
@@ -24,7 +24,10 @@ describe('test getChangeMapInput', () => {
 
     expect(changeMap).toEqual([
       {label: 'python_files', config: {glob: '*.py', separateDeleted: true}},
-      {label: 'requirements', config: {glob: 'requirements/*.txt', separateDeleted: undefined}}
+      {
+        label: 'requirements',
+        config: {glob: 'requirements/*.txt', separateDeleted: false}
+      }
     ])
   })
 })

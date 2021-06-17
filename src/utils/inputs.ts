@@ -41,7 +41,7 @@ async function getChangeMapInput(): Promise<ChangeMap[]> {
     .filter(x => x !== '')
     .map(value => {
       const [label, config] = splitChangeMapString(value, ':')
-      const {glob, separateDeleted} = JSON.parse(config)
+      const {glob, separateDeleted = false} = JSON.parse(config)
       return {label, config: {glob, separateDeleted}}
     })
 }
