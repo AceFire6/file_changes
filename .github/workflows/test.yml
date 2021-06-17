@@ -17,11 +17,11 @@ jobs:
         id: action-test
         with:
           base-branch: "test_changes"
-          command: "cat ./__tests__/{branchName}.txt"
+          command: "echo $(cat ./__tests__/{branchName}.txt) | grep {glob}"
           change-map: >-
-            text: {"glob": "*.txt"}
-            text-separate: {"glob": "*.txt", separateDeleted: true}
-            missing: {"glob": "*.jpg"}
+            text: {"glob": ".txt"}
+            text-separate: {"glob": ".txt", "separateDeleted": true}
+            missing: {"glob": ".jpg"}
 
       - name: Print Test Outputs
         run: |
