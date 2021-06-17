@@ -42,7 +42,7 @@ async function run(): Promise<void> {
 
       if (separateDeleted) {
         // If we must separate deleted, we do
-        core.setOutput(`deleted-${label}`, deletedFiles)
+        core.setOutput(`deleted-${label}`, deletedFiles.join(' '))
       } else {
         // If we don't need to separate deleted we add them to
         // the existing group of ADDED & CHANGED
