@@ -41,10 +41,20 @@ describe('test parseFilterPatterns', () => {
   const parseFilterPatterns = inputs.__get__('parseFilterPatterns')
 
   test('returns correct value', async () => {
-    const changeMap = await parseFilterPatterns(
+    const filterPatterns = await parseFilterPatterns(
       '{"ADDED":"A\\t", "CHANGED":"M\\t", "DELETED":"D\\t"}'
     )
 
-    expect(changeMap).toEqual({ADDED: 'A\t', CHANGED: 'M\t', DELETED: 'D\t'})
+    expect(filterPatterns).toEqual({
+      ADDED: 'A\t',
+      CHANGED: 'M\t',
+      DELETED: 'D\t'
+    })
+  })
+
+  test('throws error if parsed filter patterns are not an object', async () => {
+    expect(parseFilterPatterns('true')).rejects.toEqual(
+      new Error('filter-patterns must be a valid JSON object')
+    )
   })
 })
