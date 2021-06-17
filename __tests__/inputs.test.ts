@@ -1,4 +1,5 @@
 import rewire from 'rewire'
+import {getInputs} from '../src/utils/inputs'
 
 const inputs = rewire('../lib/utils/inputs')
 
@@ -56,5 +57,46 @@ describe('test parseFilterPatterns', () => {
     expect(parseFilterPatterns('true')).rejects.toEqual(
       new Error('filter-patterns must be a valid JSON object')
     )
+  })
+})
+
+describe('test getInputs', () => {
+  let revertProcessSet: () => void
+
+  beforeAll(async () => {
+    process.env['INPUT_BASE-BRANCH'] = 'base_branch'
+    process.env['INPUT_FILTER-PATTERNS'] =
+      '{"ADDED":"A\\t","CHANGED":"M\\t","DELETED":"D\\t"}'
+    process.env['INPUT_COMMAND'] = "cat {branchName} | grep '{glob}'"
+    process.env['INPUT_CHANGE-MAP'] = `
+      python_files: {"glob": "*.py", "separateDeleted": true}
+      requirements: {"glob": "requirements/*.txt"}
+    `
+    revertProcessSet = inputs.__set__('process.env', process.env)
+  })
+
+  afterAll(async () => {
+    delete process.env['INPUT_CHANGE-MAP']
+    revertProcessSet()
+  })
+
+  test('returns correct values', async () => {
+    const {fileChangeFindCommand, changeMap, filterPatterns} = await getInputs()
+
+    expect(fileChangeFindCommand).toEqual("cat base_branch | grep '{glob}'")
+
+    expect(changeMap).toEqual([
+      {label: 'python_files', config: {glob: '*.py', separateDeleted: true}},
+      {
+        label: 'requirements',
+        config: {glob: 'requirements/*.txt', separateDeleted: false}
+      }
+    ])
+
+    expect(filterPatterns).toEqual({
+      ADDED: 'A\t',
+      CHANGED: 'M\t',
+      DELETED: 'D\t'
+    })
   })
 })
