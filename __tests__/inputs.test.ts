@@ -36,3 +36,15 @@ describe('test parseChangeMapInput', () => {
     ])
   })
 })
+
+describe('test parseFilterPatterns', () => {
+  const parseFilterPatterns = inputs.__get__('parseFilterPatterns')
+
+  test('returns correct value', async () => {
+    const changeMap = await parseFilterPatterns(
+      '{"ADDED":"A\\t", "CHANGED":"M\\t", "DELETED":"D\\t"}'
+    )
+
+    expect(changeMap).toEqual({ADDED: 'A\t', CHANGED: 'M\t', DELETED: 'D\t'})
+  })
+})

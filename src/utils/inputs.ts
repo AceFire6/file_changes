@@ -50,7 +50,7 @@ async function parseChangeMapInput(
 async function parseFilterPatterns(
   filterPatternsInput: string
 ): Promise<FilterPattern> {
-  // Default: '{ADDED:"A\t",CHANGED:"M\t",DELETED:"D\t"}'
+  // Default: '{"ADDED":"A\\t", "CHANGED":"M\\t", "DELETED":"D\\t"}'
   const filterPatterns: FilterPattern = JSON.parse(filterPatternsInput)
   if (typeof filterPatterns !== 'object') {
     throw new Error('filter-patterns must be a valid JSON object')
