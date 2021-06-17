@@ -54,22 +54,23 @@ async function parseFilterPatterns(filterPatternsInput: string): Promise<FilterP
 
 export async function getInputs(): Promise<Inputs> {
   const baseBranchName = core.getInput('base-branch')
-  core.debug(`Base Branch Name - ${baseBranchName}`)
+  core.info(`Base Branch Name - ${baseBranchName}`)
 
   let fileChangeFindCommand = core.getInput('command', {required: false})
   // default is `git diff --name-status --no-renames {branchName} {glob}`
   fileChangeFindCommand = fileChangeFindCommand.replace('{branchName}', baseBranchName)
-  core.debug(`Command - ${fileChangeFindCommand}`)
+  core.info(`Command - ${fileChangeFindCommand}`)
 
   const filterPatternsInput = core.getInput('filter-patterns', {
     required: false,
   })
   const filterPatterns = await parseFilterPatterns(filterPatternsInput)
-  core.debug(`Change Filters - ${filterPatterns}`)
+  core.info(`Change Filters - ${filterPatterns}`)
 
   const changeMapInput = core.getInput('change-map')
+  core.info(`Change Map Input - ${changeMapInput}`)
   const changeMap = await parseChangeMapInput(changeMapInput)
-  core.debug(`Change Map - ${changeMap}`)
+  core.info(`Change Map - ${changeMap}`)
 
   return {changeMap, filterPatterns, fileChangeFindCommand}
 }
