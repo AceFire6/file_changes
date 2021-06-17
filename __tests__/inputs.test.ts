@@ -9,12 +9,12 @@ describe('test splitChangeMapString', () => {
   test('returns correct label/config tuple', () => {
     const splitChangeMapLine = splitChangeMapString(
       'python_files: {"glob": "*.py", "separateDeleted": true}',
-      ':'
+      ':',
     )
 
     expect(splitChangeMapLine).toEqual([
       'python_files',
-      '{"glob": "*.py", "separateDeleted": true}'
+      '{"glob": "*.py", "separateDeleted": true}',
     ])
   })
 })
@@ -32,8 +32,8 @@ describe('test parseChangeMapInput', () => {
       {label: 'python_files', config: {glob: '*.py', separateDeleted: true}},
       {
         label: 'requirements',
-        config: {glob: 'requirements/*.txt', separateDeleted: false}
-      }
+        config: {glob: 'requirements/*.txt', separateDeleted: false},
+      },
     ])
   })
 })
@@ -43,19 +43,19 @@ describe('test parseFilterPatterns', () => {
 
   test('returns correct value', async () => {
     const filterPatterns = await parseFilterPatterns(
-      '{"ADDED":"A\\t", "CHANGED":"M\\t", "DELETED":"D\\t"}'
+      '{"ADDED":"A\\t", "CHANGED":"M\\t", "DELETED":"D\\t"}',
     )
 
     expect(filterPatterns).toEqual({
       ADDED: 'A\t',
       CHANGED: 'M\t',
-      DELETED: 'D\t'
+      DELETED: 'D\t',
     })
   })
 
   test('throws error if parsed filter patterns are not an object', async () => {
-    expect(parseFilterPatterns('true')).rejects.toEqual(
-      new Error('filter-patterns must be a valid JSON object')
+    await expect(parseFilterPatterns('true')).rejects.toEqual(
+      new Error('filter-patterns must be a valid JSON object'),
     )
   })
 })
@@ -65,8 +65,7 @@ describe('test getInputs', () => {
 
   beforeAll(async () => {
     process.env['INPUT_BASE-BRANCH'] = 'base_branch'
-    process.env['INPUT_FILTER-PATTERNS'] =
-      '{"ADDED":"A\\t","CHANGED":"M\\t","DELETED":"D\\t"}'
+    process.env['INPUT_FILTER-PATTERNS'] = '{"ADDED":"A\\t","CHANGED":"M\\t","DELETED":"D\\t"}'
     process.env['INPUT_COMMAND'] = "cat {branchName} | grep '{glob}'"
     process.env['INPUT_CHANGE-MAP'] = `
       python_files: {"glob": "*.py", "separateDeleted": true}
@@ -89,14 +88,14 @@ describe('test getInputs', () => {
       {label: 'python_files', config: {glob: '*.py', separateDeleted: true}},
       {
         label: 'requirements',
-        config: {glob: 'requirements/*.txt', separateDeleted: false}
-      }
+        config: {glob: 'requirements/*.txt', separateDeleted: false},
+      },
     ])
 
     expect(filterPatterns).toEqual({
       ADDED: 'A\t',
       CHANGED: 'M\t',
-      DELETED: 'D\t'
+      DELETED: 'D\t',
     })
   })
 })

@@ -26,8 +26,7 @@ describe('test main action', () => {
 
     // Set up environment variables
     process.env['INPUT_BASE-BRANCH'] = tempTestFileName
-    process.env['INPUT_FILTER-PATTERNS'] =
-      '{"ADDED":"A\\t","CHANGED":"M\\t","DELETED":"D\\t"}'
+    process.env['INPUT_FILTER-PATTERNS'] = '{"ADDED":"A\\t","CHANGED":"M\\t","DELETED":"D\\t"}'
     process.env['INPUT_COMMAND'] = "cat {branchName} | grep '{glob}'"
     process.env['INPUT_CHANGE-MAP'] = `
       png: {"glob": ".png"}
@@ -41,14 +40,14 @@ describe('test main action', () => {
 
     const expectedPngOutput = [
       '::set-output name=png::added_img.png changed_img.png',
-      '::set-output name=any-png::true'
+      '::set-output name=any-png::true',
     ].join('\n')
 
     const expectedTxtOutput = [
       '::set-output name=deleted-txt::deleted_text.txt',
       '::set-output name=txt::added_text.txt changed_text.txt',
       '::set-output name=any-txt::true',
-      '::set-output name=any-matches::true'
+      '::set-output name=any-matches::true',
     ].join('\n')
 
     expect(result).toContain(expectedPngOutput)

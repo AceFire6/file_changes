@@ -21,10 +21,7 @@ interface Inputs {
   fileChangeFindCommand: string
 }
 
-function splitChangeMapString(
-  splitString: string,
-  separator: string
-): [string, string] {
+function splitChangeMapString(splitString: string, separator: string): [string, string] {
   const index = splitString.indexOf(separator)
 
   const label = splitString.substring(0, index).trim()
@@ -33,9 +30,7 @@ function splitChangeMapString(
   return [label, config]
 }
 
-async function parseChangeMapInput(
-  changeMapInput: string
-): Promise<ChangeMap[]> {
+async function parseChangeMapInput(changeMapInput: string): Promise<ChangeMap[]> {
   return changeMapInput
     .split('\n')
     .map(s => s.trim())
@@ -47,9 +42,7 @@ async function parseChangeMapInput(
     })
 }
 
-async function parseFilterPatterns(
-  filterPatternsInput: string
-): Promise<FilterPattern> {
+async function parseFilterPatterns(filterPatternsInput: string): Promise<FilterPattern> {
   // Default: '{"ADDED":"A\\t", "CHANGED":"M\\t", "DELETED":"D\\t"}'
   const filterPatterns: FilterPattern = JSON.parse(filterPatternsInput)
   if (typeof filterPatterns !== 'object') {
@@ -65,14 +58,11 @@ export async function getInputs(): Promise<Inputs> {
 
   let fileChangeFindCommand = core.getInput('command', {required: false})
   // default is `git diff --name-status --no-renames {branchName} {glob}`
-  fileChangeFindCommand = fileChangeFindCommand.replace(
-    '{branchName}',
-    baseBranchName
-  )
+  fileChangeFindCommand = fileChangeFindCommand.replace('{branchName}', baseBranchName)
   core.debug(`Command - ${fileChangeFindCommand}`)
 
   const filterPatternsInput = core.getInput('filter-patterns', {
-    required: false
+    required: false,
   })
   const filterPatterns = await parseFilterPatterns(filterPatternsInput)
   core.debug(`Change Filters - ${filterPatterns}`)

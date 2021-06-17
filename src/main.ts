@@ -1,9 +1,5 @@
 import * as core from '@actions/core'
-import {
-  getFileChangesWithCommand,
-  getFilteredChangeMap,
-  parseFileChanges
-} from './file_changes'
+import {getFileChangesWithCommand, getFilteredChangeMap, parseFileChanges} from './file_changes'
 import {getInputs} from './utils/inputs'
 
 async function run(): Promise<void> {
@@ -16,7 +12,7 @@ async function run(): Promise<void> {
     let anyFilesChanged = false
     for (const {
       label,
-      config: {glob, separateDeleted}
+      config: {glob, separateDeleted},
     } of changeMap) {
       // Generate command to get files for current glob
       const fileChangeCommand = fileChangeFindCommand.replace('{glob}', glob)
@@ -30,7 +26,7 @@ async function run(): Promise<void> {
       const {
         ADDED: addedFiles,
         CHANGED: changedFiles,
-        DELETED: deletedFiles
+        DELETED: deletedFiles,
       } = await parseFileChanges(filteredChanges)
 
       // Group ADDED & CHANGED - these files can still be operated on directly

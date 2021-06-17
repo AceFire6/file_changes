@@ -3,7 +3,7 @@ import {
   getFileChangesWithCommand,
   GitChange,
   parseFileChanges,
-  GitChangeType
+  GitChangeType,
 } from '../src/file_changes'
 import {getExecOutput} from '@actions/exec'
 import {mocked} from 'ts-jest/utils'
@@ -27,7 +27,7 @@ describe('test getFileChangesWithCommand', () => {
     mockedExec.mockResolvedValue({
       stdout: ' A\n B\n C ',
       stderr: '',
-      exitCode: 0
+      exitCode: 0,
     })
 
     const result = await getFileChangesWithCommand(command)
@@ -39,7 +39,7 @@ describe('test getFileChangesWithCommand', () => {
     mockedExec.mockResolvedValue({stdout: '', stderr: '', exitCode: 1})
 
     await expect(getFileChangesWithCommand(command)).rejects.toThrow(
-      new Error('Failed to get files - Exit Code 1 - ')
+      new Error('Failed to get files - Exit Code 1 - '),
     )
   })
 
@@ -48,7 +48,7 @@ describe('test getFileChangesWithCommand', () => {
     mockedExec.mockResolvedValue({stdout: '', stderr, exitCode: 0})
 
     await expect(getFileChangesWithCommand(command)).rejects.toThrow(
-      new Error(`Failed to get files - Exit Code 0 - ${stderr}`)
+      new Error(`Failed to get files - Exit Code 0 - ${stderr}`),
     )
   })
 })
@@ -62,11 +62,11 @@ describe('test getFilteredChangeMap', () => {
       const filter = changeFilters[gitChange]
       const fileChange = `${filter}${gitChange.toLowerCase()}_file1.txt`
 
-      const result = await getFilteredChangeMap([fileChange], changeFilters)
+      const result = getFilteredChangeMap([fileChange], changeFilters)
       const expectedFileChange = fileChange.replace(filter, '')
 
       expect(result).toEqual([[gitChange, expectedFileChange]])
-    }
+    },
   )
 
   test('returns correct mapping for multiple inputs', async () => {
@@ -74,21 +74,21 @@ describe('test getFilteredChangeMap', () => {
       'A\tadded_file.txt',
       'D\tdeleted_file.txt',
       'R098\trenamed.txt',
-      'M\tchanged_file.txt'
+      'M\tchanged_file.txt',
     ]
 
-    const result = await getFilteredChangeMap(fileChanges, changeFilters)
+    const result = getFilteredChangeMap(fileChanges, changeFilters)
     const expectedResults = [
       [GitChange.ADDED, 'added_file.txt'],
       [GitChange.DELETED, 'deleted_file.txt'],
-      [GitChange.CHANGED, 'changed_file.txt']
+      [GitChange.CHANGED, 'changed_file.txt'],
     ]
 
     expect(result).toEqual(expectedResults)
   })
 
   test('returns empty list if no match is found', async () => {
-    const result = await getFilteredChangeMap(['ZZ\tfile.txt'], changeFilters)
+    const result = getFilteredChangeMap(['ZZ\tfile.txt'], changeFilters)
 
     expect(result).toEqual([])
   })
@@ -105,14 +105,14 @@ describe('test parseFileChanges', () => {
     const inputs: [GitChangeType, string][] = [
       [GitChange.ADDED, 'added_file.txt'],
       [GitChange.DELETED, 'deleted_file.txt'],
-      [GitChange.CHANGED, 'changed_file.txt']
+      [GitChange.CHANGED, 'changed_file.txt'],
     ]
     const result = await parseFileChanges(inputs)
 
     const expectedResult = {
       ADDED: ['added_file.txt'],
       CHANGED: ['changed_file.txt'],
-      DELETED: ['deleted_file.txt']
+      DELETED: ['deleted_file.txt'],
     }
 
     expect(result).toEqual(expectedResult)
