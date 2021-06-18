@@ -16,7 +16,7 @@ async function run(): Promise<void> {
     } of changeMap) {
       // Generate command to get files for current glob
       const fileChangeCommand = fileChangeFindCommand.replace('{glob}', glob)
-      core.debug(`Generate file change command - ${fileChangeFindCommand}`)
+      core.debug(`Generate file change command - ${fileChangeCommand}`)
       // Get files for glob
       const fileChanges = await getFileChangesWithCommand(fileChangeCommand)
       core.debug(`File changes - ${fileChanges}`)
