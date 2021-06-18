@@ -18,7 +18,7 @@ type FilteredChange = [GitChangeType, string]
 
 export async function getFileChangesWithCommand(command: string): Promise<string[]> {
   const {exitCode, stdout, stderr} = await getExecOutput(`/bin/bash -c "${command}"`)
-  core.debug(`stdout = ${stdout} and stderr = ${stderr}`)
+  core.debug(`Command result - stdout = ${stdout} and stderr = ${stderr}`)
 
   if (exitCode !== 0 || stderr !== '') {
     throw new Error(`Failed to get files - Exit Code ${exitCode} - ${stderr}`)
