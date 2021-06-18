@@ -23,7 +23,10 @@ filter-patterns:
     A map with keys ADDED, CHANGED, and DELETED as keys and the pattern as a value.
     Any defined keys will be kept, others discarded.
     The matching is done by checking if the file change starts with the pattern.
-  default: '{"ADDED":"A\\t","CHANGED":"M\\t","DELETED":"D\\t"}'
+  default: |
+    ADDED: {"pattern": "A\t"}
+    CHANGED: {"pattern": "M\t"}
+    DELETED: {"pattern": "D\t"}
 
 change-map:
   required: true

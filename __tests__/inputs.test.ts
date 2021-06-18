@@ -42,9 +42,11 @@ describe('test parseFilterPatterns', () => {
   const parseFilterPatterns = inputs.__get__('parseFilterPatterns')
 
   test('returns correct value', async () => {
-    const filterPatterns = await parseFilterPatterns(
-      '{"ADDED":"A\\t", "CHANGED":"M\\t", "DELETED":"D\\t"}',
-    )
+    const filterPatterns = await parseFilterPatterns(`
+      ADDED: {"pattern": "A\\t"}
+      CHANGED: {"pattern": "M\\t"}
+      DELETED: {"pattern": "D\\t"}
+    `)
 
     expect(filterPatterns).toEqual({
       ADDED: 'A\t',
@@ -65,7 +67,11 @@ describe('test getInputs', () => {
 
   beforeAll(async () => {
     process.env['INPUT_BASE-BRANCH'] = 'base_branch'
-    process.env['INPUT_FILTER-PATTERNS'] = '{"ADDED":"A\\t","CHANGED":"M\\t","DELETED":"D\\t"}'
+    process.env['INPUT_FILTER-PATTERNS'] = `
+      ADDED: {"pattern": "A\\t"}
+      CHANGED: {"pattern": "M\\t"}
+      DELETED: {"pattern": "D\\t"}
+    `
     process.env['INPUT_COMMAND'] = "cat {branchName} | grep '{glob}'"
     process.env['INPUT_CHANGE-MAP'] = `
       python_files: {"glob": "*.py", "separateDeleted": true}
