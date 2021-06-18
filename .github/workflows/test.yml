@@ -47,6 +47,9 @@ jobs:
           echo "Result => text-separate: ${{ steps.action-test.outputs.text-separate }}"
           echo "Result => any-text-separate: ${{ steps.action-test.outputs.any-text-separate }}"
           echo "Result => deleted-text-separate: ${{ steps.action-test.outputs.deleted-text-separate }}"
+          echo "Result => missing: ${{ steps.action-test.outputs.missing }}"
+          echo "Result => any-missing: ${{ steps.action-test.outputs.any-missing }}"
+          echo "Result => deleted-missing: ${{ steps.action-test.outputs.deleted-missing }}"
 
       - name: Fail If Test Outputs Incorrect
         if: >-
