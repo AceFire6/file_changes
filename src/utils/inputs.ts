@@ -2,7 +2,7 @@ import * as core from '@actions/core'
 
 interface ConfigMap {
   glob: string
-  separateDeleted?: boolean
+  separateDeleted: boolean
 }
 interface ChangeMap {
   label: string
