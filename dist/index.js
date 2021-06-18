@@ -61,7 +61,9 @@ function getFilteredChangeMap(fileChanges, changeFilters) {
     return fileChanges
         .map(fileChange => {
         for (const [changeType, lineStart] of Object.entries(changeFilters)) {
+            core.debug(`Checking - ${changeType} ${lineStart} - ${fileChange} - ${escape(lineStart)} ${escape(fileChange)}`);
             if (fileChange.startsWith(lineStart)) {
+                core.debug(`Matched! - ${changeType} ${lineStart} - ${fileChange}`);
                 return [changeType, fileChange.replace(lineStart, '')];
             }
         }
@@ -129,16 +131,13 @@ function run() {
             for (const { label, config: { glob, separateDeleted }, } of changeMap) {
                 // Generate command to get files for current glob
                 const fileChangeCommand = fileChangeFindCommand.replace('{glob}', glob);
-                core.debug(`Generate file change command - ${fileChangeFindCommand}`);
+                core.debug(`Generate file change command - ${fileChangeCommand}`);
                 // Get files for glob
                 const fileChanges = yield file_changes_1.getFileChangesWithCommand(fileChangeCommand);
                 core.debug(`File changes - ${fileChanges}`);
                 // Parse fileChanges into list of tuples with ChangeType and filtered name
                 const filteredChanges = file_changes_1.getFilteredChangeMap(fileChanges, filterPatterns);
-                const changesAsStr = Object.entries(filteredChanges)
-                    .map(s => s.join(':'))
-                    .join(',');
-                core.debug(`Filtered changes - ${changesAsStr}`);
+                core.debug(`Filtered changes - ${filteredChanges}`);
                 // Group the file list into ADDED, CHANGED, and DELETE files
                 const { ADDED: addedFiles, CHANGED: changedFiles, DELETED: deletedFiles, } = yield file_changes_1.parseFileChanges(filteredChanges);
                 core.debug(`Parsed changes - ADDED - ${addedFiles}`);
@@ -214,33 +213,39 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getInputs = void 0;
 const core = __importStar(__nccwpck_require__(186));
-function splitChangeMapString(splitString, separator) {
+function splitLabelMapString(splitString, separator) {
     const index = splitString.indexOf(separator);
     const label = splitString.substring(0, index).trim();
     const config = splitString.substr(index + 1).trim();
     return [label, config];
 }
-function parseChangeMapInput(changeMapInput) {
+function parseLabelMapInput(changeMapInput) {
     return __awaiter(this, void 0, void 0, function* () {
         return changeMapInput
             .split('\n')
             .map(s => s.trim())
             .filter(x => x !== '')
-            .map(value => {
-            const [label, config] = splitChangeMapString(value, ':');
-            const { glob, separateDeleted = false } = JSON.parse(config);
+            .map(value => splitLabelMapString(value, ':'));
+    });
+}
+function parseChangeMapInput(changeMapInput) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return (yield parseLabelMapInput(changeMapInput)).map(([label, jsonMap]) => {
+            const { glob, separateDeleted = false } = JSON.parse(jsonMap);
             return { label, config: { glob, separateDeleted } };
         });
     });
 }
 function parseFilterPatterns(filterPatternsInput) {
     return __awaiter(this, void 0, void 0, function* () {
-        // Default: '{"ADDED":"A\\t", "CHANGED":"M\\t", "DELETED":"D\\t"}'
-        const filterPatterns = JSON.parse(filterPatternsInput);
-        if (typeof filterPatterns !== 'object') {
-            throw new Error('filter-patterns must be a valid JSON object');
-        }
-        return filterPatterns;
+        return (yield parseLabelMapInput(filterPatternsInput))
+            .map(([label, jsonMap]) => {
+            const { pattern } = JSON.parse(jsonMap);
+            return [label, pattern];
+        })
+            .reduce((accumulator, [label, pattern]) => {
+            return Object.assign(Object.assign({}, accumulator), { [label]: pattern });
+        }, {});
     });
 }
 function getInputs() {
@@ -254,6 +259,7 @@ function getInputs() {
         const filterPatternsInput = core.getInput('filter-patterns', {
             required: false,
         });
+        core.debug(`Filter Patterns Input - ${filterPatternsInput}`);
         const filterPatterns = yield parseFilterPatterns(filterPatternsInput);
         const filterPatternsStr = Object.entries(filterPatterns)
             .map(s => s.join(':'))
