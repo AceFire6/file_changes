@@ -54,12 +54,6 @@ describe('test parseFilterPatterns', () => {
       DELETED: 'D\t',
     })
   })
-
-  test('throws error if parsed filter patterns are not an object', async () => {
-    await expect(parseFilterPatterns('true')).rejects.toEqual(
-      new Error('filter-patterns must be a valid JSON object'),
-    )
-  })
 })
 
 describe('test getInputs', () => {
