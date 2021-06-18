@@ -20,7 +20,7 @@ command:
 filter-patterns:
   required: false
   description: >-
-    A map with keys ADDED, CHANGED, and DELETED as keys and the pattern as a value.
+    A map with keys ADDED, CHANGED, and DELETED as keys and a pattern object ({"pattern": "<pattern>"}) as a value.
     Any defined keys will be kept, others discarded.
     The matching is done by checking if the file change starts with the pattern.
   default: |
