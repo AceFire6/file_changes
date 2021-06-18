@@ -27,7 +27,7 @@ describe('test main action', () => {
     // Set up environment variables
     process.env['INPUT_BASE-BRANCH'] = tempTestFileName
     process.env['INPUT_FILTER-PATTERNS'] = '{"ADDED":"A\\t","CHANGED":"M\\t","DELETED":"D\\t"}'
-    process.env['INPUT_COMMAND'] = "cat {branchName} | grep '{glob}'"
+    process.env['INPUT_COMMAND'] = 'echo \\\"$(cat {branchName} | grep {glob})\\\"'
     process.env['INPUT_CHANGE-MAP'] = `
       png: {"glob": ".png"}
       txt: {"glob": ".txt", "separateDeleted": true}
