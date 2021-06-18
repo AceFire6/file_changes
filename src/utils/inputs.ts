@@ -64,6 +64,7 @@ export async function getInputs(): Promise<Inputs> {
   const filterPatternsInput = core.getInput('filter-patterns', {
     required: false,
   })
+  core.debug(`Filter Patterns Input - ${filterPatternsInput}`)
   const filterPatterns = await parseFilterPatterns(filterPatternsInput)
   const filterPatternsStr = Object.entries(filterPatterns)
     .map(s => s.join(':'))

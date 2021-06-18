@@ -37,7 +37,11 @@ export function getFilteredChangeMap(
   return fileChanges
     .map(fileChange => {
       for (const [changeType, lineStart] of Object.entries(changeFilters)) {
-        core.debug(`Checking - ${changeType} ${lineStart} - ${fileChange}`)
+        core.debug(
+          `Checking - ${changeType} ${lineStart} - ${fileChange} - ${escape(lineStart)} ${escape(
+            fileChange,
+          )}`,
+        )
         if (fileChange.startsWith(lineStart)) {
           core.debug(`Matched! - ${changeType} ${lineStart} - ${fileChange}`)
           return [changeType as GitChangeType, fileChange.replace(lineStart, '')]

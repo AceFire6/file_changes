@@ -23,10 +23,7 @@ async function run(): Promise<void> {
 
       // Parse fileChanges into list of tuples with ChangeType and filtered name
       const filteredChanges = getFilteredChangeMap(fileChanges, filterPatterns)
-      const changesAsStr = Object.entries(filteredChanges)
-        .map(s => s.join(':'))
-        .join(',')
-      core.debug(`Filtered changes - ${changesAsStr}`)
+      core.debug(`Filtered changes - ${filteredChanges}`)
 
       // Group the file list into ADDED, CHANGED, and DELETE files
       const {
