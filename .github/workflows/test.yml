@@ -51,7 +51,7 @@ jobs:
           echo "Result => any-missing: ${{ steps.action-test.outputs.any-missing }}"
           echo "Result => deleted-missing: ${{ steps.action-test.outputs.deleted-missing }}"
 
-      - name: Fail If Test Outputs Incorrect
+      - name: Fail If Test Outputs Incorrectly
         if: >-
           steps.action-test.outputs.any-matches != 'true' ||
           steps.action-test.outputs.text != 'added_text.txt changed_text.txt deleted_text.txt' ||
