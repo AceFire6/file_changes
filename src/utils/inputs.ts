@@ -65,7 +65,10 @@ export async function getInputs(): Promise<Inputs> {
     required: false,
   })
   const filterPatterns = await parseFilterPatterns(filterPatternsInput)
-  core.debug(`Change Filters - ${filterPatterns}`)
+  const filterPatternsStr = Object.entries(filterPatterns)
+    .map(s => s.join(':'))
+    .join(',')
+  core.debug(`Change Filters - ${filterPatternsStr}`)
 
   const changeMapInput = core.getInput('change-map')
   core.debug(`Change Map Input - ${changeMapInput}`)
