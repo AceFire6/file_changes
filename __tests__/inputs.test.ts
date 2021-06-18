@@ -3,11 +3,11 @@ import {getInputs} from '../src/utils/inputs'
 
 const inputs = rewire('../lib/utils/inputs')
 
-describe('test splitChangeMapString', () => {
-  const splitChangeMapString = inputs.__get__('splitChangeMapString')
+describe('test splitLabelMapString', () => {
+  const splitLabelMapString = inputs.__get__('splitLabelMapString')
 
   test('returns correct label/config tuple', () => {
-    const splitChangeMapLine = splitChangeMapString(
+    const splitChangeMapLine = splitLabelMapString(
       'python_files: {"glob": "*.py", "separateDeleted": true}',
       ':',
     )

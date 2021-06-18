@@ -21,7 +21,7 @@ interface Inputs {
   fileChangeFindCommand: string
 }
 
-function splitChangeMapString(splitString: string, separator: string): [string, string] {
+function splitLabelMapString(splitString: string, separator: string): [string, string] {
   const index = splitString.indexOf(separator)
 
   const label = splitString.substring(0, index).trim()
@@ -36,7 +36,7 @@ async function parseChangeMapInput(changeMapInput: string): Promise<ChangeMap[]>
     .map(s => s.trim())
     .filter(x => x !== '')
     .map(value => {
-      const [label, config] = splitChangeMapString(value, ':')
+      const [label, config] = splitLabelMapString(value, ':')
       const {glob, separateDeleted = false} = JSON.parse(config)
       return {label, config: {glob, separateDeleted}}
     })
