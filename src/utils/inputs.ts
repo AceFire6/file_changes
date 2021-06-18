@@ -30,26 +30,30 @@ function splitLabelMapString(splitString: string, separator: string): [string, s
   return [label, config]
 }
 
-async function parseChangeMapInput(changeMapInput: string): Promise<ChangeMap[]> {
+async function parseLabelMapInput(changeMapInput: string): Promise<[string, string][]> {
   return changeMapInput
     .split('\n')
     .map(s => s.trim())
     .filter(x => x !== '')
-    .map(value => {
-      const [label, config] = splitLabelMapString(value, ':')
-      const {glob, separateDeleted = false} = JSON.parse(config)
-      return {label, config: {glob, separateDeleted}}
-    })
+    .map(value => splitLabelMapString(value, ':'))
+}
+
+async function parseChangeMapInput(changeMapInput: string): Promise<ChangeMap[]> {
+  return (await parseLabelMapInput(changeMapInput)).map(([label, jsonMap]) => {
+    const {glob, separateDeleted = false} = JSON.parse(jsonMap)
+    return {label, config: {glob, separateDeleted}}
+  })
 }
 
 async function parseFilterPatterns(filterPatternsInput: string): Promise<FilterPattern> {
-  // Default: '{"ADDED":"A\\t", "CHANGED":"M\\t", "DELETED":"D\\t"}'
-  const filterPatterns: FilterPattern = JSON.parse(filterPatternsInput)
-  if (typeof filterPatterns !== 'object') {
-    throw new Error('filter-patterns must be a valid JSON object')
-  }
-
-  return filterPatterns
+  return (await parseLabelMapInput(filterPatternsInput))
+    .map(([label, jsonMap]) => {
+      const {pattern} = JSON.parse(jsonMap)
+      return [label, pattern]
+    })
+    .reduce((accumulator, [label, pattern]) => {
+      return {...accumulator, [label]: pattern}
+    }, {}) as FilterPattern
 }
 
 export async function getInputs(): Promise<Inputs> {
