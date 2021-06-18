@@ -33,16 +33,17 @@ describe('test main action', () => {
     `
     process.env['INPUT_COMMAND'] = 'echo \\"$(cat {branchName} | grep {glob})\\"'
     process.env['INPUT_CHANGE-MAP'] = `
-      png: {"glob": ".png"}
+      png: {"glob": ".png", "separateDeleted": true}
       txt: {"glob": ".txt", "separateDeleted": true}
+      missing: {"glob": ".jpg"}
     `
   })
 
-  // shows how the runner will run a javascript action with env / stdout protocol
   test('test runs does not error', () => {
     const result = cp.execFileSync(nodePath, [actionPath], options).toString()
 
     const expectedPngOutput = [
+      '::set-output name=deleted-png::',
       '::set-output name=png::added_img.png changed_img.png',
       '::set-output name=any-png::true',
     ].join('\n')
@@ -51,10 +52,16 @@ describe('test main action', () => {
       '::set-output name=deleted-txt::deleted_text.txt',
       '::set-output name=txt::added_text.txt changed_text.txt',
       '::set-output name=any-txt::true',
+    ].join('\n')
+
+    const expectedMissingOutput = [
+      '::set-output name=missing::',
+      '::set-output name=any-missing::false',
       '::set-output name=any-matches::true',
     ].join('\n')
 
     expect(result).toContain(expectedPngOutput)
     expect(result).toContain(expectedTxtOutput)
+    expect(result).toContain(expectedMissingOutput)
   })
 })
