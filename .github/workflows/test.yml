@@ -43,20 +43,17 @@ jobs:
           echo "Result => any-matches: ${{ steps.action-test.outputs.any-matches }}"
           echo "Result => text: ${{ steps.action-test.outputs.text }}"
           echo "Result => any-text: ${{ steps.action-test.outputs.any-text }}"
-          echo "Result => deleted-text: ${{ steps.action-test.outputs.deleted-text }}"
           echo "Result => text-separate: ${{ steps.action-test.outputs.text-separate }}"
           echo "Result => any-text-separate: ${{ steps.action-test.outputs.any-text-separate }}"
           echo "Result => deleted-text-separate: ${{ steps.action-test.outputs.deleted-text-separate }}"
           echo "Result => missing: ${{ steps.action-test.outputs.missing }}"
           echo "Result => any-missing: ${{ steps.action-test.outputs.any-missing }}"
-          echo "Result => deleted-missing: ${{ steps.action-test.outputs.deleted-missing }}"
 
       - name: Fail If Test Outputs Incorrectly
         if: >-
           steps.action-test.outputs.any-matches != 'true' ||
           steps.action-test.outputs.text != 'added_text.txt changed_text.txt deleted_text.txt' ||
           steps.action-test.outputs.any-text != 'true' ||
-          steps.action-test.outputs.deleted-text != '' ||
           steps.action-test.outputs.text-separate != 'added_text.txt changed_text.txt' ||
           steps.action-test.outputs.any-text-separate != 'true' ||
           steps.action-test.outputs.deleted-text-separate != 'deleted_text.txt' ||
