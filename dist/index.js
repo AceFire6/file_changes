@@ -131,18 +131,18 @@ function run() {
             for (const { label, config: { glob, separateDeleted }, } of changeMap) {
                 // Generate command to get files for current glob
                 const fileChangeCommand = fileChangeFindCommand.replace('{glob}', glob);
-                core.debug(`Generate file change command - ${fileChangeCommand}`);
+                core.debug(`[${label}] Generate file change command - ${fileChangeCommand}`);
                 // Get files for glob
                 const fileChanges = yield file_changes_1.getFileChangesWithCommand(fileChangeCommand);
-                core.debug(`File changes - ${fileChanges}`);
+                core.debug(`[${label}] File changes - ${fileChanges}`);
                 // Parse fileChanges into list of tuples with ChangeType and filtered name
                 const filteredChanges = file_changes_1.getFilteredChangeMap(fileChanges, filterPatterns);
-                core.debug(`Filtered changes - ${filteredChanges}`);
+                core.debug(`[${label}] Filtered changes - ${filteredChanges}`);
                 // Group the file list into ADDED, CHANGED, and DELETE files
                 const { ADDED: addedFiles, CHANGED: changedFiles, DELETED: deletedFiles, } = yield file_changes_1.parseFileChanges(filteredChanges);
-                core.debug(`Parsed changes - ADDED - ${addedFiles}`);
-                core.debug(`Parsed changes - CHANGED - ${changedFiles}`);
-                core.debug(`Parsed changes - DELETED - ${deletedFiles}`);
+                core.debug(`[${label}] Parsed changes - ADDED - ${addedFiles}`);
+                core.debug(`[${label}] Parsed changes - CHANGED - ${changedFiles}`);
+                core.debug(`[${label}] Parsed changes - DELETED - ${deletedFiles}`);
                 // Group ADDED & CHANGED - these files can still be operated on directly
                 let existingFileChanges = addedFiles.concat(changedFiles);
                 // Check if there are any changes in ADDED, CHANGED, or DELETED
