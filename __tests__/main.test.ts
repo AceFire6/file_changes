@@ -46,22 +46,31 @@ describe('test main action', () => {
       '::set-output name=deleted-png::',
       '::set-output name=png::added_img.png changed_img.png',
       '::set-output name=any-png::true',
-    ].join('\n')
+    ]
 
     const expectedTxtOutput = [
       '::set-output name=deleted-txt::deleted_text.txt',
       '::set-output name=txt::added_text.txt changed_text.txt',
       '::set-output name=any-txt::true',
-    ].join('\n')
+    ]
 
     const expectedMissingOutput = [
       '::set-output name=missing::',
       '::set-output name=any-missing::false',
       '::set-output name=any-matches::true',
-    ].join('\n')
+    ]
 
-    expect(result).toContain(expectedPngOutput)
-    expect(result).toContain(expectedTxtOutput)
-    expect(result).toContain(expectedMissingOutput)
+    expectedPngOutput.map((expectedOutput) => {
+      expect(result).toContain(expectedOutput)
+    })
+
+    expectedTxtOutput.map((expectedOutput) => {
+      expect(result).toContain(expectedOutput)
+    })
+
+    expectedMissingOutput.map((expectedOutput) => {
+      expect(result).toContain(expectedOutput)
+    })
+
   })
 })
