@@ -10,7 +10,7 @@
 base-branch:
   required: false
   description: 'The name of the branch being compared to. Uses $GITHUB_BASE_REF if not set'
-  default: $GITHUB_BASE_REF
+  default: ${{ github.base_ref }}
 
 command:
   required: false
@@ -42,9 +42,9 @@ eg. For a Python project where you want a list of Python files changed with and 
 uses: AceFire6/changed_file_filter@v1
 with:
   change-map: |
-    python: {glob: "*.py", separateDeleted: true}
-    requirements: {glob: "requirements/*.txt"}
-    migrations: {glob: "**/migrations/*.py"}
+    python: {"glob": "*.py", "separateDeleted": true}
+    requirements: {"glob": "requirements/*.txt"}
+    migrations: {"glob": "**/migrations/*.py"}
 ```
 
 ### Outputs

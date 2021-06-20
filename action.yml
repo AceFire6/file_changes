@@ -5,7 +5,7 @@ inputs:
   base-branch:
     required: false
     description: 'The name of the branch being compared to. Uses $GITHUB_BASE_REF if not set'
-    default: $GITHUB_BASE_REF
+    default: ${{ github.base_ref }}
   command:
     required: false
     description: 'The command to run to get the file changes can contain {glob} and {branchName} to specify replacements'
