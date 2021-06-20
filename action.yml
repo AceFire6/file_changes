@@ -1,5 +1,5 @@
-name: 'Changed File Filter'
-description: 'A customisable filter that uses git to get changed files based on rules and sets them to outputs'
+name: 'File Changes'
+description: 'A customisable filter that uses git (or a custom command) to get changed files based on rules and sets them to outputs'
 author: 'Jethro Muller'
 color: blue
 icon: file-text
