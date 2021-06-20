@@ -1,8 +1,10 @@
 name: 'File Changes'
 description: 'A customisable filter that uses git (or a custom command) to get changed files based on rules and sets them to outputs'
 author: 'Jethro Muller'
-color: blue
-icon: file-text
+branding:
+  color: blue
+  icon: file-text
+
 inputs:
   base-branch:
     required: false
@@ -29,9 +31,11 @@ inputs:
       eg. python_files: {"glob": "*.py", "separateDeleted": false}
       requirements: {"glob": "requirements/*.txt"}
       The final boolean determines if we separate out floats
+
 outputs:
   any-matches:
     description: 'Any glob matches found'
+
 runs:
   using: 'node12'
   main: 'dist/index.js'
