@@ -2,11 +2,11 @@ import * as core from '@actions/core'
 import {getExecOutput} from '@actions/exec'
 import {FilterPattern} from './utils/inputs'
 
-export const GitChange = {
-  ADDED: 'ADDED',
-  CHANGED: 'CHANGED',
-  DELETED: 'DELETED',
-} as const
+export enum GitChange {
+  ADDED = 'ADDED',
+  CHANGED = 'CHANGED',
+  DELETED = 'DELETED',
+}
 export type GitChangeType = typeof GitChange[keyof typeof GitChange]
 
 interface FileChangeMap {
