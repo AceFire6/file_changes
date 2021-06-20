@@ -23,10 +23,10 @@ describe('test parseChangeMapInput', () => {
   const parseChangeMapInput = inputs.__get__('parseChangeMapInput')
 
   test('returns correct value', async () => {
-    const changeMap = await parseChangeMapInput(`
-      python_files: {"glob": "*.py", "separateDeleted": true}
-      requirements: {"glob": "requirements/*.txt"}
-    `)
+    const changeMap = await parseChangeMapInput([
+      'python_files: {"glob": "*.py", "separateDeleted": true}',
+      'requirements: {"glob": "requirements/*.txt"}',
+    ])
 
     expect(changeMap).toEqual([
       {label: 'python_files', config: {glob: '*.py', separateDeleted: true}},
@@ -42,11 +42,11 @@ describe('test parseFilterPatterns', () => {
   const parseFilterPatterns = inputs.__get__('parseFilterPatterns')
 
   test('returns correct value', async () => {
-    const filterPatterns = await parseFilterPatterns(`
-      ADDED: {"pattern": "A\\t"}
-      CHANGED: {"pattern": "M\\t"}
-      DELETED: {"pattern": "D\\t"}
-    `)
+    const filterPatterns = await parseFilterPatterns([
+      'ADDED: {"pattern": "A\\t"}',
+      'CHANGED: {"pattern": "M\\t"}',
+      'DELETED: {"pattern": "D\\t"}',
+    ])
 
     expect(filterPatterns).toEqual({
       ADDED: 'A\t',

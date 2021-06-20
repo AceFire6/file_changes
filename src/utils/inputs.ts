@@ -30,25 +30,24 @@ function splitLabelMapString(splitString: string, separator: string): [string, s
   return [label, config]
 }
 
-async function parseLabelMapInput(changeMapInput: string): Promise<[string, string][]> {
+async function parseLabelMapInput(changeMapInput: string[]): Promise<[string, string][]> {
   return changeMapInput
-    .split('\n')
     .map(s => s.trim())
     .filter(x => x !== '')
     .map(value => splitLabelMapString(value, ':'))
 }
 
-async function parseChangeMapInput(changeMapInput: string): Promise<ChangeMap[]> {
+async function parseChangeMapInput(changeMapInput: string[]): Promise<ChangeMap[]> {
   return (await parseLabelMapInput(changeMapInput)).map(([label, jsonMap]) => {
     const {glob, separateDeleted = false} = JSON.parse(jsonMap)
     return {label, config: {glob, separateDeleted}}
   })
 }
 
-async function parseFilterPatterns(filterPatternsInput: string): Promise<FilterPattern> {
+async function parseFilterPatterns(filterPatternsInput: string[]): Promise<FilterPattern> {
   return (await parseLabelMapInput(filterPatternsInput))
-    .map(([label, jsonMap]) => {
-      const {pattern} = JSON.parse(jsonMap)
+    .map(([label, patternMap]) => {
+      const {pattern} = JSON.parse(patternMap)
       return [label, pattern]
     })
     .reduce((accumulator, [label, pattern]) => {
@@ -65,7 +64,7 @@ export async function getInputs(): Promise<Inputs> {
   fileChangeFindCommand = fileChangeFindCommand.replace('{branchName}', baseBranchName)
   core.debug(`Command - ${fileChangeFindCommand}`)
 
-  const filterPatternsInput = core.getInput('filter-patterns', {
+  const filterPatternsInput = core.getMultilineInput('filter-patterns', {
     required: false,
   })
   core.debug(`Filter Patterns Input - ${filterPatternsInput}`)
@@ -75,7 +74,7 @@ export async function getInputs(): Promise<Inputs> {
     .join(',')
   core.debug(`Change Filters - ${filterPatternsStr}`)
 
-  const changeMapInput = core.getInput('change-map')
+  const changeMapInput = core.getMultilineInput('change-map')
   core.debug(`Change Map Input - ${changeMapInput}`)
   const changeMap = await parseChangeMapInput(changeMapInput)
 
