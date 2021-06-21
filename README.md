@@ -1,5 +1,5 @@
 # Git File Change Filter
-[![GitHub Action Badge](https://github.com/AceFire6/changed_file_filter/actions/workflows/test.yml/badge.svg)](https://github.com/AceFire6/changed_file_filter/actions/workflztows/test.yml/badge.svg)
+[![GitHub Action Badge](https://github.com/AceFire6/file_changes/actions/workflows/test.yml/badge.svg)](https://github.com/AceFire6/file_changes/actions/workflztows/test.yml/badge.svg)
 
 ## Using the Action
 
@@ -16,6 +16,11 @@ command:
   required: false
   description: 'The command to run to get the file changes can contain {glob} and {branchName} to specify replacements'
   default: 'git diff --name-status --no-renames {branchName} {glob}'
+
+glob-template:
+  required: false
+  description: 'How to format the globs received'
+  default: "'{glob}'"
 
 filter-patterns:
   required: false
@@ -40,7 +45,7 @@ change-map:
 
 eg. For a Python project where you want a list of Python files changed with and without deleted files
 ```yaml
-uses: AceFire6/changed_file_filter@v1
+uses: AceFire6/file_changes@v{version}
 with:
   change-map: |
     python: {"globs": "*.py", "separateDeleted": true}
