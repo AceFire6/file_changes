@@ -25,9 +25,11 @@ export async function getTemplatedGlobs(
   if (typeof globs == 'string') {
     templatedGlobs = globTemplate.replace('{glob}', globs)
   } else {
-    templatedGlobs = globs.reduce((accumulator, glob) => {
-      return `${accumulator}${globTemplate.replace('{glob}', glob)}`
-    })
+    templatedGlobs = globs
+      .map(glob => {
+        return globTemplate.replace('{glob}', glob)
+      })
+      .join(' ')
   }
 
   return templatedGlobs
