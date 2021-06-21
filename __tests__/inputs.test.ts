@@ -8,13 +8,13 @@ describe('test splitLabelMapString', () => {
 
   test('returns correct label/config tuple', () => {
     const splitChangeMapLine = splitLabelMapString(
-      'python_files: {"glob": "*.py", "separateDeleted": true}',
+      'python_files: {"globs": "*.py", "separateDeleted": true}',
       ':',
     )
 
     expect(splitChangeMapLine).toEqual([
       'python_files',
-      '{"glob": "*.py", "separateDeleted": true}',
+      '{"globs": "*.py", "separateDeleted": true}',
     ])
   })
 })
@@ -24,15 +24,15 @@ describe('test parseChangeMapInput', () => {
 
   test('returns correct value', async () => {
     const changeMap = await parseChangeMapInput([
-      'python_files: {"glob": "*.py", "separateDeleted": true}',
-      'requirements: {"glob": "requirements/*.txt"}',
+      'python_files: {"globs": "*.py", "separateDeleted": true}',
+      'requirements: {"globs": "requirements/*.txt"}',
     ])
 
     expect(changeMap).toEqual([
-      {label: 'python_files', config: {glob: '*.py', separateDeleted: true}},
+      {label: 'python_files', config: {globs: '*.py', separateDeleted: true}},
       {
         label: 'requirements',
-        config: {glob: 'requirements/*.txt', separateDeleted: false},
+        config: {globs: 'requirements/*.txt', separateDeleted: false},
       },
     ])
   })
@@ -68,8 +68,8 @@ describe('test getInputs', () => {
     `
     process.env['INPUT_COMMAND'] = "cat {branchName} | grep '{glob}'"
     process.env['INPUT_CHANGE-MAP'] = `
-      python_files: {"glob": "*.py", "separateDeleted": true}
-      requirements: {"glob": "requirements/*.txt"}
+      python_files: {"globs": "*.py", "separateDeleted": true}
+      requirements: {"globs": "requirements/*.txt"}
     `
     revertProcessSet = inputs.__set__('process.env', process.env)
   })
@@ -85,10 +85,10 @@ describe('test getInputs', () => {
     expect(fileChangeFindCommand).toEqual("cat base_branch | grep '{glob}'")
 
     expect(changeMap).toEqual([
-      {label: 'python_files', config: {glob: '*.py', separateDeleted: true}},
+      {label: 'python_files', config: {globs: '*.py', separateDeleted: true}},
       {
         label: 'requirements',
-        config: {glob: 'requirements/*.txt', separateDeleted: false},
+        config: {globs: 'requirements/*.txt', separateDeleted: false},
       },
     ])
 
