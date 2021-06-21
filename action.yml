@@ -12,8 +12,13 @@ inputs:
     default: ${{ github.base_ref }}
   command:
     required: false
-    description: 'The command to run to get the file changes can contain {glob} and {branchName} to specify replacements'
-    default: 'git diff --name-status --no-renames {branchName} {glob}'
+    description: 'The command to run to get the file changes can contain {globs} and
+    {branchName} to specify replacements. {globs} uses glob-template to prepare the globs before replacement.'
+    default: 'git diff --name-status --no-renames {branchName} {globs}'
+  glob-template:
+    required: false
+    description: 'How to format the globs received'
+    default: "'{glob}'"
   filter-patterns:
     required: false
     description: >-

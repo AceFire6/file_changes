@@ -19,6 +19,7 @@ interface Inputs {
   changeMap: ChangeMap[]
   filterPatterns: FilterPattern
   fileChangeFindCommand: string
+  globTemplate: string
 }
 
 function splitLabelMapString(splitString: string, separator: string): [string, string] {
@@ -64,6 +65,10 @@ export async function getInputs(): Promise<Inputs> {
   fileChangeFindCommand = fileChangeFindCommand.replace('{branchName}', baseBranchName)
   core.debug(`Command - ${fileChangeFindCommand}`)
 
+  const globTemplate = core.getInput('glob-template', {required: false})
+  // default is '{glob}'
+  core.debug(`Command - ${globTemplate}`)
+
   const filterPatternsInput = core.getMultilineInput('filter-patterns', {
     required: false,
   })
@@ -78,5 +83,5 @@ export async function getInputs(): Promise<Inputs> {
   core.debug(`Change Map Input - ${changeMapInput}`)
   const changeMap = await parseChangeMapInput(changeMapInput)
 
-  return {changeMap, filterPatterns, fileChangeFindCommand}
+  return {changeMap, filterPatterns, fileChangeFindCommand, globTemplate}
 }
