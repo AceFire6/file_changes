@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 
 interface ConfigMap {
-  glob: string
+  globs: string | string[]
   separateDeleted: boolean
 }
 interface ChangeMap {
@@ -40,8 +40,8 @@ async function parseLabelMapInput(changeMapInput: string[]): Promise<[string, st
 
 async function parseChangeMapInput(changeMapInput: string[]): Promise<ChangeMap[]> {
   return (await parseLabelMapInput(changeMapInput)).map(([label, jsonMap]) => {
-    const {glob, separateDeleted = false} = JSON.parse(jsonMap)
-    return {label, config: {glob, separateDeleted}}
+    const {globs, separateDeleted = false} = JSON.parse(jsonMap)
+    return {label, config: {globs, separateDeleted}}
   })
 }
 
@@ -61,7 +61,7 @@ export async function getInputs(): Promise<Inputs> {
   core.debug(`Base Branch Name - ${baseBranchName}`)
 
   let fileChangeFindCommand = core.getInput('command', {required: false})
-  // default is `git diff --name-status --no-renames {branchName} {glob}`
+  // default is `git diff --name-status --no-renames {branchName} {globs}`
   fileChangeFindCommand = fileChangeFindCommand.replace('{branchName}', baseBranchName)
   core.debug(`Command - ${fileChangeFindCommand}`)
 

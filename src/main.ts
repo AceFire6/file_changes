@@ -12,10 +12,10 @@ async function run(): Promise<void> {
     let anyFilesChanged = false
     for (const {
       label,
-      config: {glob, separateDeleted},
+      config: {globs, separateDeleted},
     } of changeMap) {
       // Generate command to get files for current glob
-      const fileChangeCommand = fileChangeFindCommand.replace('{glob}', glob)
+      const fileChangeCommand = fileChangeFindCommand.replace('{globs}', globs)
       core.debug(`[${label}] Generate file change command - ${fileChangeCommand}`)
       // Get files for glob
       const fileChanges = await getFileChangesWithCommand(fileChangeCommand)
