@@ -1,5 +1,10 @@
 import * as core from '@actions/core'
-import { getFileChangesWithCommand, getFilteredChangeMap, getTemplatedGlobs, parseFileChanges } from "./file_changes";
+import {
+  getFileChangesWithCommand,
+  getFilteredChangeMap,
+  getTemplatedGlobs,
+  parseFileChanges,
+} from './file_changes'
 import {getInputs} from './utils/inputs'
 
 async function run(): Promise<void> {

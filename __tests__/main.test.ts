@@ -60,17 +60,16 @@ describe('test main action', () => {
       '::set-output name=any-matches::true',
     ]
 
-    expectedPngOutput.map((expectedOutput) => {
+    expectedPngOutput.map(expectedOutput => {
       expect(result).toContain(expectedOutput)
     })
 
-    expectedTxtOutput.map((expectedOutput) => {
+    expectedTxtOutput.map(expectedOutput => {
       expect(result).toContain(expectedOutput)
     })
 
-    expectedMissingOutput.map((expectedOutput) => {
+    expectedMissingOutput.map(expectedOutput => {
       expect(result).toContain(expectedOutput)
     })
-
   })
 })

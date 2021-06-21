@@ -3,13 +3,13 @@ import {
   getFileChangesWithCommand,
   GitChange,
   parseFileChanges,
-  GitChangeType, getTemplatedGlobs
-} from "../src/file_changes";
+  GitChangeType,
+  getTemplatedGlobs,
+} from '../src/file_changes'
 import {getExecOutput} from '@actions/exec'
 import {mocked} from 'ts-jest/utils'
 
 jest.mock('@actions/exec')
-
 
 describe('test getTemplatedGlobs', () => {
   const globTemplate = "'{glob}'"
