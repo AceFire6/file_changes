@@ -3,12 +3,33 @@ import {
   getFileChangesWithCommand,
   GitChange,
   parseFileChanges,
-  GitChangeType,
-} from '../src/file_changes'
+  GitChangeType, getTemplatedGlobs
+} from "../src/file_changes";
 import {getExecOutput} from '@actions/exec'
 import {mocked} from 'ts-jest/utils'
 
 jest.mock('@actions/exec')
+
+
+describe('test getTemplatedGlobs', () => {
+  const globTemplate = "'{glob}'"
+
+  test('returns correctly templated globs for array', async () => {
+    const globs = ['*.png', '*.txt']
+
+    const result = await getTemplatedGlobs(globTemplate, globs)
+
+    expect(result).toEqual("'*.png' '*.txt'")
+  })
+
+  test('returns correctly templated globs for string', async () => {
+    const globs = '*.txt'
+
+    const result = await getTemplatedGlobs(globTemplate, globs)
+
+    expect(result).toEqual("'*.txt'")
+  })
+})
 
 describe('test getFileChangesWithCommand', () => {
   const mockedExec = mocked(getExecOutput, true)
