@@ -16,6 +16,23 @@ interface FileChangeMap {
 }
 type FilteredChange = [GitChangeType, string]
 
+export async function getTemplatedGlobs(
+  globTemplate: string,
+  globs: string | string[],
+): Promise<string> {
+  let templatedGlobs: string
+
+  if (typeof globs == 'string') {
+    templatedGlobs = globTemplate.replace('{glob}', globs)
+  } else {
+    templatedGlobs = globs.reduce((accumulator, glob) => {
+      return `${accumulator}${globTemplate.replace('{glob}', glob)}`
+    })
+  }
+
+  return templatedGlobs
+}
+
 export async function getFileChangesWithCommand(command: string): Promise<string[]> {
   const {exitCode, stdout, stderr} = await getExecOutput(`/bin/bash -c "${command}"`)
   core.debug(`Command result - stdout = ${stdout} and stderr = ${stderr}`)

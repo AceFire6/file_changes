@@ -1,11 +1,11 @@
 import * as core from '@actions/core'
-import {getFileChangesWithCommand, getFilteredChangeMap, parseFileChanges} from './file_changes'
+import { getFileChangesWithCommand, getFilteredChangeMap, getTemplatedGlobs, parseFileChanges } from "./file_changes";
 import {getInputs} from './utils/inputs'
 
 async function run(): Promise<void> {
   try {
     // Get Inputs
-    const {fileChangeFindCommand, changeMap, filterPatterns} = await getInputs()
+    const {fileChangeFindCommand, globTemplate, changeMap, filterPatterns} = await getInputs()
     core.debug(`Starting ${new Date().toTimeString()}`)
 
     // Get & then process files
@@ -14,8 +14,10 @@ async function run(): Promise<void> {
       label,
       config: {globs, separateDeleted},
     } of changeMap) {
+      // Get globs templated
+      const templatedGlobs = await getTemplatedGlobs(globTemplate, globs)
       // Generate command to get files for current glob
-      const fileChangeCommand = fileChangeFindCommand.replace('{globs}', globs)
+      const fileChangeCommand = fileChangeFindCommand.replace('{globs}', templatedGlobs)
       core.debug(`[${label}] Generate file change command - ${fileChangeCommand}`)
       // Get files for glob
       const fileChanges = await getFileChangesWithCommand(fileChangeCommand)
