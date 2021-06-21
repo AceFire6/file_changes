@@ -67,7 +67,7 @@ export async function getInputs(): Promise<Inputs> {
 
   const globTemplate = core.getInput('glob-template', {required: false})
   // default is '{glob}'
-  core.debug(`Command - ${globTemplate}`)
+  core.debug(`Glob Template - ${globTemplate}`)
 
   const filterPatternsInput = core.getMultilineInput('filter-patterns', {
     required: false,
