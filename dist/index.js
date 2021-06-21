@@ -35,14 +35,32 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseFileChanges = exports.getFilteredChangeMap = exports.getFileChangesWithCommand = exports.GitChange = void 0;
+exports.parseFileChanges = exports.getFilteredChangeMap = exports.getFileChangesWithCommand = exports.getTemplatedGlobs = exports.GitChange = void 0;
 const core = __importStar(__nccwpck_require__(186));
 const exec_1 = __nccwpck_require__(514);
-exports.GitChange = {
-    ADDED: 'ADDED',
-    CHANGED: 'CHANGED',
-    DELETED: 'DELETED',
-};
+var GitChange;
+(function (GitChange) {
+    GitChange["ADDED"] = "ADDED";
+    GitChange["CHANGED"] = "CHANGED";
+    GitChange["DELETED"] = "DELETED";
+})(GitChange = exports.GitChange || (exports.GitChange = {}));
+function getTemplatedGlobs(globTemplate, globs) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let templatedGlobs;
+        if (typeof globs == 'string') {
+            templatedGlobs = globTemplate.replace('{glob}', globs);
+        }
+        else {
+            templatedGlobs = globs
+                .map(glob => {
+                return globTemplate.replace('{glob}', glob);
+            })
+                .join(' ');
+        }
+        return templatedGlobs;
+    });
+}
+exports.getTemplatedGlobs = getTemplatedGlobs;
 function getFileChangesWithCommand(command) {
     return __awaiter(this, void 0, void 0, function* () {
         const { exitCode, stdout, stderr } = yield exec_1.getExecOutput(`/bin/bash -c "${command}"`);
@@ -124,13 +142,15 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // Get Inputs
-            const { fileChangeFindCommand, changeMap, filterPatterns } = yield inputs_1.getInputs();
+            const { fileChangeFindCommand, globTemplate, changeMap, filterPatterns } = yield inputs_1.getInputs();
             core.debug(`Starting ${new Date().toTimeString()}`);
             // Get & then process files
             let anyFilesChanged = false;
-            for (const { label, config: { glob, separateDeleted }, } of changeMap) {
+            for (const { label, config: { globs, separateDeleted }, } of changeMap) {
+                // Get globs templated
+                const templatedGlobs = yield file_changes_1.getTemplatedGlobs(globTemplate, globs);
                 // Generate command to get files for current glob
-                const fileChangeCommand = fileChangeFindCommand.replace('{glob}', glob);
+                const fileChangeCommand = fileChangeFindCommand.replace('{globs}', templatedGlobs);
                 core.debug(`[${label}] Generate file change command - ${fileChangeCommand}`);
                 // Get files for glob
                 const fileChanges = yield file_changes_1.getFileChangesWithCommand(fileChangeCommand);
@@ -222,7 +242,6 @@ function splitLabelMapString(splitString, separator) {
 function parseLabelMapInput(changeMapInput) {
     return __awaiter(this, void 0, void 0, function* () {
         return changeMapInput
-            .split('\n')
             .map(s => s.trim())
             .filter(x => x !== '')
             .map(value => splitLabelMapString(value, ':'));
@@ -231,16 +250,16 @@ function parseLabelMapInput(changeMapInput) {
 function parseChangeMapInput(changeMapInput) {
     return __awaiter(this, void 0, void 0, function* () {
         return (yield parseLabelMapInput(changeMapInput)).map(([label, jsonMap]) => {
-            const { glob, separateDeleted = false } = JSON.parse(jsonMap);
-            return { label, config: { glob, separateDeleted } };
+            const { globs, separateDeleted = false } = JSON.parse(jsonMap);
+            return { label, config: { globs, separateDeleted } };
         });
     });
 }
 function parseFilterPatterns(filterPatternsInput) {
     return __awaiter(this, void 0, void 0, function* () {
         return (yield parseLabelMapInput(filterPatternsInput))
-            .map(([label, jsonMap]) => {
-            const { pattern } = JSON.parse(jsonMap);
+            .map(([label, patternMap]) => {
+            const { pattern } = JSON.parse(patternMap);
             return [label, pattern];
         })
             .reduce((accumulator, [label, pattern]) => {
@@ -253,10 +272,13 @@ function getInputs() {
         const baseBranchName = core.getInput('base-branch');
         core.debug(`Base Branch Name - ${baseBranchName}`);
         let fileChangeFindCommand = core.getInput('command', { required: false });
-        // default is `git diff --name-status --no-renames {branchName} {glob}`
+        // default is `git diff --name-status --no-renames {branchName} {globs}`
         fileChangeFindCommand = fileChangeFindCommand.replace('{branchName}', baseBranchName);
         core.debug(`Command - ${fileChangeFindCommand}`);
-        const filterPatternsInput = core.getInput('filter-patterns', {
+        const globTemplate = core.getInput('glob-template', { required: false });
+        // default is '{glob}'
+        core.debug(`Command - ${globTemplate}`);
+        const filterPatternsInput = core.getMultilineInput('filter-patterns', {
             required: false,
         });
         core.debug(`Filter Patterns Input - ${filterPatternsInput}`);
@@ -265,10 +287,10 @@ function getInputs() {
             .map(s => s.join(':'))
             .join(',');
         core.debug(`Change Filters - ${filterPatternsStr}`);
-        const changeMapInput = core.getInput('change-map');
+        const changeMapInput = core.getMultilineInput('change-map');
         core.debug(`Change Map Input - ${changeMapInput}`);
         const changeMap = yield parseChangeMapInput(changeMapInput);
-        return { changeMap, filterPatterns, fileChangeFindCommand };
+        return { changeMap, filterPatterns, fileChangeFindCommand, globTemplate };
     });
 }
 exports.getInputs = getInputs;
@@ -280,14 +302,27 @@ exports.getInputs = getInputs;
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.issue = exports.issueCommand = void 0;
 const os = __importStar(__nccwpck_require__(87));
 const utils_1 = __nccwpck_require__(278);
 /**
@@ -365,6 +400,25 @@ function escapeProperty(s) {
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -374,14 +428,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getState = exports.saveState = exports.group = exports.endGroup = exports.startGroup = exports.info = exports.warning = exports.error = exports.debug = exports.isDebug = exports.setFailed = exports.setCommandEcho = exports.setOutput = exports.getBooleanInput = exports.getMultilineInput = exports.getInput = exports.addPath = exports.setSecret = exports.exportVariable = exports.ExitCode = void 0;
 const command_1 = __nccwpck_require__(351);
 const file_command_1 = __nccwpck_require__(717);
 const utils_1 = __nccwpck_require__(278);
@@ -448,7 +496,9 @@ function addPath(inputPath) {
 }
 exports.addPath = addPath;
 /**
- * Gets the value of an input.  The value is also trimmed.
+ * Gets the value of an input.
+ * Unless trimWhitespace is set to false in InputOptions, the value is also trimmed.
+ * Returns an empty string if the value is not defined.
  *
  * @param     name     name of the input to get
  * @param     options  optional. See InputOptions.
@@ -459,9 +509,49 @@ function getInput(name, options) {
     if (options && options.required && !val) {
         throw new Error(`Input required and not supplied: ${name}`);
     }
+    if (options && options.trimWhitespace === false) {
+        return val;
+    }
     return val.trim();
 }
 exports.getInput = getInput;
+/**
+ * Gets the values of an multiline input.  Each value is also trimmed.
+ *
+ * @param     name     name of the input to get
+ * @param     options  optional. See InputOptions.
+ * @returns   string[]
+ *
+ */
+function getMultilineInput(name, options) {
+    const inputs = getInput(name, options)
+        .split('\n')
+        .filter(x => x !== '');
+    return inputs;
+}
+exports.getMultilineInput = getMultilineInput;
+/**
+ * Gets the input value of the boolean type in the YAML 1.2 "core schema" specification.
+ * Support boolean input list: `true | True | TRUE | false | False | FALSE` .
+ * The return value is also in boolean type.
+ * ref: https://yaml.org/spec/1.2/spec.html#id2804923
+ *
+ * @param     name     name of the input to get
+ * @param     options  optional. See InputOptions.
+ * @returns   boolean
+ */
+function getBooleanInput(name, options) {
+    const trueValue = ['true', 'True', 'TRUE'];
+    const falseValue = ['false', 'False', 'FALSE'];
+    const val = getInput(name, options);
+    if (trueValue.includes(val))
+        return true;
+    if (falseValue.includes(val))
+        return false;
+    throw new TypeError(`Input does not meet YAML 1.2 "Core Schema" specification: ${name}\n` +
+        `Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
+}
+exports.getBooleanInput = getBooleanInput;
 /**
  * Sets the value of an output.
  *
@@ -470,6 +560,7 @@ exports.getInput = getInput;
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setOutput(name, value) {
+    process.stdout.write(os.EOL);
     command_1.issueCommand('set-output', { name }, value);
 }
 exports.setOutput = setOutput;
@@ -610,14 +701,27 @@ exports.getState = getState;
 
 
 // For internal use, subject to change.
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.issueCommand = void 0;
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const fs = __importStar(__nccwpck_require__(747));
@@ -647,6 +751,7 @@ exports.issueCommand = issueCommand;
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.toCommandValue = void 0;
 /**
  * Sanitizes an input into a string so it can be passed into issueCommand safely
  * @param input input to sanitize into a string
