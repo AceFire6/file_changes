@@ -34,6 +34,7 @@ jobs:
           base-branch: "test_changes"
           command: "echo \\\"$(cat ./__tests__/{branchName}.txt |  grep {glob})\\\""
           change-map: |
+            text-and-png: {"glob": "-e .txt -e .png"}
             text: {"glob": ".txt"}
             text-separate: {"glob": ".txt", "separateDeleted": true}
             missing: {"glob": ".jpg"}
@@ -41,6 +42,8 @@ jobs:
       - name: Print Test Outputs
         run: |
           echo "Result => any-matches: ${{ steps.action-test.outputs.any-matches }}"
+          echo "Result => text-and-png: ${{ steps.action-test.outputs.text-and-png }}"
+          echo "Result => any-text-and-png: ${{ steps.action-test.outputs.any-text-and-png }}"
           echo "Result => text: ${{ steps.action-test.outputs.text }}"
           echo "Result => any-text: ${{ steps.action-test.outputs.any-text }}"
           echo "Result => text-separate: ${{ steps.action-test.outputs.text-separate }}"
@@ -52,6 +55,8 @@ jobs:
       - name: Fail If Test Outputs Incorrectly
         if: >-
           steps.action-test.outputs.any-matches != 'true' ||
+          steps.action-test.outputs.text-and-png != 'added_text.txt added_img.png changed_text.txt changed_img.png deleted_text.txt' ||
+          steps.action-test.outputs.any-text-and-png != 'true' ||
           steps.action-test.outputs.text != 'added_text.txt changed_text.txt deleted_text.txt' ||
           steps.action-test.outputs.any-text != 'true' ||
           steps.action-test.outputs.text-separate != 'added_text.txt changed_text.txt' ||
