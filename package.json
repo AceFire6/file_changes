@@ -1,6 +1,6 @@
 {
   "name": "file-changes",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "description": "A customisable filter that uses git to get changed files based on rules and sets them to outputs",
   "main": "lib/main.js",

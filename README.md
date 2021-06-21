@@ -45,7 +45,7 @@ change-map:
 
 eg. For a Python project where you want a list of Python files changed with and without deleted files
 ```yaml
-uses: AceFire6/file_changes@v{version}
+uses: AceFire6/file_changes@v0.1.0
 with:
   change-map: |
     python: {"globs": "*.py", "separateDeleted": true}
