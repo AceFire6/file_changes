@@ -33,8 +33,9 @@ inputs:
     required: true
     description: >-
       A multi-line map of changes to find.
-      eg. python_files: {"glob": "*.py", "separateDeleted": false}
-      requirements: {"glob": "requirements/*.txt"}
+      eg. python_files: {"globs": "*.py", "separateDeleted": false}
+      requirements: {"globs": "requirements/*.txt"}
+      py_and_requirements: {"globs": ["requirements/*.txt", "*.py"]}
       The final boolean determines if we separate out floats
 
 outputs:
