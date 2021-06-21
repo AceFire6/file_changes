@@ -31,11 +31,12 @@ describe('test main action', () => {
       CHANGED: {"pattern": "M\\t"}
       DELETED: {"pattern": "D\\t"}
     `
-    process.env['INPUT_COMMAND'] = 'echo \\"$(cat {branchName} | grep {glob})\\"'
+    process.env['INPUT_COMMAND'] = 'echo \\"$(cat {branchName} | grep {globs})\\"'
+    process.env['INPUT_GLOB-TEMPLATE'] = "-e '{glob}'"
     process.env['INPUT_CHANGE-MAP'] = `
-      png: {"glob": ".png", "separateDeleted": true}
-      txt: {"glob": ".txt", "separateDeleted": true}
-      missing: {"glob": ".jpg"}
+      png: {"globs": ".png", "separateDeleted": true}
+      txt: {"globs": ".txt", "separateDeleted": true}
+      missing: {"globs": ".jpg"}
     `
   })
 
