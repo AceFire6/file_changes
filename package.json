@@ -1,5 +1,5 @@
 {
-  "name": "changed-file-filter",
+  "name": "file-changes",
   "version": "0.0.1",
   "private": true,
   "description": "A customisable filter that uses git to get changed files based on rules and sets them to outputs",
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AceFire6/changed_file_filter.git"
+    "url": "git+https://github.com/AceFire6/file_changes.git"
   },
   "keywords": [
     "actions",
