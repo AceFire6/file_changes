@@ -1,5 +1,5 @@
 # Git File Change Filter
-[![GitHub Action Badge](https://github.com/AceFire6/file_changes/actions/workflows/test.yml/badge.svg)](https://github.com/AceFire6/file_changes/actions/workflztows/test.yml/badge.svg)
+[![GitHub Action Badge](https://github.com/AceFire6/file_changes/actions/workflows/test.yml/badge.svg)](https://github.com/AceFire6/file_changes/actions/workflows/test.yml/badge.svg)
 
 ## Using the Action
 
