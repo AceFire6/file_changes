@@ -33,7 +33,7 @@
     "@types/jest": "^26.0.23",
     "@types/node": "^16.4.0",
     "@types/rewire": "^2.5.28",
-    "@types/tmp": "^0.2.0",
+    "@types/tmp": "^0.2.1",
     "@typescript-eslint/parser": "^4.31.1",
     "@vercel/ncc": "^0.28.6",
     "eslint": "^7.29.0",
