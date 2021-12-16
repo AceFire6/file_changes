@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
-    "@types/node": "^16.4.0",
+    "@types/node": "^17.0.0",
     "@types/rewire": "^2.5.28",
     "@types/tmp": "^0.2.0",
     "@typescript-eslint/parser": "^4.31.1",
