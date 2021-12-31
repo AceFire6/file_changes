@@ -30,7 +30,7 @@
     "@actions/glob": "^0.2.0"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.23",
+    "@types/jest": "^27.4.0",
     "@types/node": "^16.4.0",
     "@types/rewire": "^2.5.28",
     "@types/tmp": "^0.2.0",
