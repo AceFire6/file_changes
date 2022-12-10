@@ -1,14 +1,20 @@
-import * as process from 'process'
-import * as cp from 'child_process'
-import * as path from 'path'
+import * as process from 'node:process'
+import * as cp from 'node:child_process'
+import * as path from 'node:path'
+import * as fs from 'node:fs'
 import tmp from 'tmp'
-import * as fs from 'fs'
+
+function regexOutput(fieldName: string, value: string): RegExp {
+  return new RegExp(`${fieldName}<<(?<delim>ghadelimiter_.+)\\n${value}\\n\\k<delim>`)
+}
 
 describe('test main action', () => {
   let tempTestFileName: string
   const nodePath = process.execPath
   const actionPath = path.join(__dirname, '..', 'lib', 'main.js')
   const options: cp.ExecFileSyncOptions = {env: process.env}
+
+  let githubOutputFilePath = process.env['GITHUB_OUTPUT'] ?? ''
 
   beforeAll(() => {
     // Create temp file
@@ -38,39 +44,47 @@ describe('test main action', () => {
       txt: {"globs": ".txt", "separateDeleted": true}
       missing: {"globs": ".jpg"}
     `
+
+    if (githubOutputFilePath === '') {
+      const tempFile = tmp.fileSync()
+      githubOutputFilePath = tempFile.name
+
+      process.env['GITHUB_OUTPUT'] = githubOutputFilePath
+    }
   })
 
   test('test runs does not error', () => {
-    const result = cp.execFileSync(nodePath, [actionPath], options).toString()
+    let result = cp.execFileSync(nodePath, [actionPath], options).toString()
+    result = fs.readFileSync(githubOutputFilePath, 'utf-8')
 
     const expectedPngOutput = [
-      '::set-output name=deleted-png::',
-      '::set-output name=png::added_img.png changed_img.png',
-      '::set-output name=any-png::true',
+      regexOutput('deleted-png', ''),
+      regexOutput('png', 'added_img.png changed_img.png'),
+      regexOutput('any-png', 'true'),
     ]
 
     const expectedTxtOutput = [
-      '::set-output name=deleted-txt::deleted_text.txt',
-      '::set-output name=txt::added_text.txt changed_text.txt',
-      '::set-output name=any-txt::true',
+      regexOutput('deleted-txt', 'deleted_text.txt'),
+      regexOutput('txt', 'added_text.txt changed_text.txt'),
+      regexOutput('any-txt', 'true'),
     ]
 
     const expectedMissingOutput = [
-      '::set-output name=missing::',
-      '::set-output name=any-missing::false',
-      '::set-output name=any-matches::true',
+      regexOutput('missing', ''),
+      regexOutput('any-missing', 'false'),
+      regexOutput('any-matches', 'true'),
     ]
 
     expectedPngOutput.map(expectedOutput => {
-      expect(result).toContain(expectedOutput)
+      expect(result).toMatch(expectedOutput)
     })
 
     expectedTxtOutput.map(expectedOutput => {
-      expect(result).toContain(expectedOutput)
+      expect(result).toMatch(expectedOutput)
     })
 
     expectedMissingOutput.map(expectedOutput => {
-      expect(result).toContain(expectedOutput)
+      expect(result).toMatch(expectedOutput)
     })
   })
 })
