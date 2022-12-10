@@ -17,6 +17,8 @@ jobs:
           key: npm-v2-${{ hashFiles('package-lock.json') }}
       - run: npm install --frozen-lockfile
       - run: npm run all
+        env:
+          GITHUB_OUTPUT: ''
 
   test-action: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
