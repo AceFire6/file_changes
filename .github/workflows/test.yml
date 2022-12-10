@@ -14,8 +14,8 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: 'node_modules'
-          key: npm-v1-${{ hashFiles('package-lock.json') }}
-      - run: npm install
+          key: npm-v2-${{ hashFiles('package-lock.json') }}
+      - run: npm install --package-lock-only
       - run: npm run all
 
   test-action: # make sure the action works on a clean machine without building
@@ -25,8 +25,8 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: 'node_modules'
-          key: npm-v1-${{ hashFiles('package-lock.json') }}
-      - run: npm install
+          key: npm-v2-${{ hashFiles('package-lock.json') }}
+      - run: npm install --package-lock-only
       - run: npm run build && npm run package
       - uses: ./
         id: action-test
