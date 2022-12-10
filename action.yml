@@ -13,7 +13,7 @@ inputs:
   command:
     required: false
     description: 'The command to run to get the file changes can contain {globs} and
-    {branchName} to specify replacements. {globs} uses glob-template to prepare the globs before replacement.'
+      {branchName} to specify replacements. {globs} uses glob-template to prepare the globs before replacement.'
     default: 'git diff --name-status --no-renames {branchName} {globs}'
   glob-template:
     required: false
@@ -43,5 +43,5 @@ outputs:
     description: 'Any glob matches found'
 
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'

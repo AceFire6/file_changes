@@ -3,14 +3,14 @@ on:
   pull_request:
   push:
     branches:
-    - main
-    - 'releases/*'
+      - main
+      - 'releases/*'
 
 jobs:
   build-action: # make sure build/ci work properly
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions/cache@v2
         with:
           path: 'node_modules'
@@ -21,7 +21,7 @@ jobs:
   test-action: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions/cache@v2
         with:
           path: 'node_modules'
@@ -31,7 +31,7 @@ jobs:
       - uses: ./
         id: action-test
         with:
-          base-branch: "test_changes"
+          base-branch: 'test_changes'
           command: "echo \\\"$(cat ./__tests__/{branchName}.txt |  grep {globs})\\\""
           glob-template: "-e '{glob}'"
           change-map: |

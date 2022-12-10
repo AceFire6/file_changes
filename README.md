@@ -1,4 +1,5 @@
 # Git File Change Filter
+
 [![GitHub Action Badge](https://github.com/AceFire6/file_changes/actions/workflows/test.yml/badge.svg)](https://github.com/AceFire6/file_changes/actions/workflows/test.yml/badge.svg)
 
 ## Using the Action
@@ -6,6 +7,7 @@
 ---
 
 ### Inputs
+
 ```yaml
 base-branch:
   required: false
@@ -44,6 +46,7 @@ change-map:
 ```
 
 eg. For a Python project where you want a list of Python files changed with and without deleted files
+
 ```yaml
 uses: AceFire6/file_changes@v0.1.0
 with:
@@ -54,6 +57,7 @@ with:
 ```
 
 ### Outputs
+
 ```yaml
 any-matches:
   description: 'Any glob matches found'
@@ -67,12 +71,12 @@ any-<change-map.0.0>: 'true'
 deleted-<change-map.0.0>: '<file_deleted1> <file_deleted2> ...'
 ```
 
-eg. Referring back to the inputs example of a Python project. 
+eg. Referring back to the inputs example of a Python project.
 The is what the outputs would look like assuming the following:
 
-* Added files: `tests/test.py`
-* Changed files: `main.py` `helpers/utils.py` `requirements/api.txt`
-* Deleted files: `utils.py` `requirements/aip.txt`
+- Added files: `tests/test.py`
+- Changed files: `main.py` `helpers/utils.py` `requirements/api.txt`
+- Deleted files: `utils.py` `requirements/aip.txt`
 
 ```yaml
 any-matches: 'true'
@@ -91,17 +95,20 @@ any-migrations: 'false'
 
 > First, you'll need to have a reasonably modern version of `node` handy. This won't work with versions older than 9, for instance.
 
-### Install the dependencies  
+### Install the dependencies
+
 ```bash
 $ npm install
 ```
 
 ### Build the typescript and package it for distribution
+
 ```bash
 $ npm run build && npm run package
 ```
 
-### Run the tests  
+### Run the tests
+
 ```bash
 $ npm test
 
@@ -130,9 +137,9 @@ import * as core from '@actions/core';
 ...
 
 async function run() {
-  try { 
+  try {
       ...
-  } 
+  }
   catch (error) {
     core.setFailed(error.message);
   }
@@ -145,9 +152,10 @@ See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/R
 
 ### Publish to a distribution branch
 
-Actions are run from GitHub repos so we will checkin the packed dist folder. 
+Actions are run from GitHub repos so we will checkin the packed dist folder.
 
 Then run [ncc](https://github.com/zeit/ncc) and push the results:
+
 ```bash
 $ npm run package
 $ git add dist
@@ -157,7 +165,7 @@ $ git push origin releases/v1
 
 Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
 
-Your action is now published! :rocket: 
+Your action is now published! :rocket:
 
 See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
 

@@ -4,7 +4,7 @@ import {
   getFilteredChangeMap,
   getTemplatedGlobs,
   parseFileChanges,
-} from './file_changes'
+} from './file-changes'
 import {getInputs} from './utils/inputs'
 
 async function run(): Promise<void> {
@@ -68,8 +68,23 @@ async function run(): Promise<void> {
     // of the labels had a match
     core.setOutput(`any-matches`, anyFilesChanged)
     core.debug(`Finished ${new Date().toTimeString()}`)
-  } catch (error) {
-    core.setFailed(error.message)
+  } catch (error: unknown) {
+    if (error === null || (typeof error !== 'string' && typeof error !== 'object')) {
+      core.setFailed('Unknown error encountered')
+      return
+    }
+
+    if (typeof error === 'string') {
+      core.setFailed(`Encountered error - ${error}`)
+      return
+    }
+
+    if ('message' in error && typeof error.message === 'string') {
+      core.setFailed(error.message)
+      return
+    }
+
+    core.setFailed('Unknown error encountered')
   }
 }
 

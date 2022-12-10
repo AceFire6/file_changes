@@ -5,9 +5,8 @@ import {
   parseFileChanges,
   GitChangeType,
   getTemplatedGlobs,
-} from '../src/file_changes'
+} from '../src/file-changes'
 import {getExecOutput} from '@actions/exec'
-import {mocked} from 'ts-jest/utils'
 
 jest.mock('@actions/exec')
 
@@ -32,7 +31,7 @@ describe('test getTemplatedGlobs', () => {
 })
 
 describe('test getFileChangesWithCommand', () => {
-  const mockedExec = mocked(getExecOutput, true)
+  const mockedExec = jest.mocked(getExecOutput)
   const baseBranch = 'main'
   const command = `git diff --name-status --no-renames ${baseBranch} '*.txt'`
 
