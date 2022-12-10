@@ -1,52 +1,52 @@
-import * as core from '@actions/core'
-import {getExecOutput} from '@actions/exec'
-import {FilterPattern} from './utils/inputs'
+import * as core from '@actions/core';
+import { getExecOutput } from '@actions/exec';
+import { FilterPattern } from './utils/inputs';
 
 export enum GitChange {
   ADDED = 'ADDED',
   CHANGED = 'CHANGED',
   DELETED = 'DELETED',
 }
-export type GitChangeType = typeof GitChange[keyof typeof GitChange]
+export type GitChangeType = typeof GitChange[keyof typeof GitChange];
 
 interface FileChangeMap {
-  ADDED: string[]
-  CHANGED: string[]
-  DELETED: string[]
+  ADDED: string[];
+  CHANGED: string[];
+  DELETED: string[];
 }
-type FilteredChange = [GitChangeType, string]
+type FilteredChange = [GitChangeType, string];
 
 export async function getTemplatedGlobs(
   globTemplate: string,
   globs: string | string[],
 ): Promise<string> {
-  let templatedGlobs: string
+  let templatedGlobs: string;
 
   if (typeof globs == 'string') {
-    templatedGlobs = globTemplate.replace('{glob}', globs)
+    templatedGlobs = globTemplate.replace('{glob}', globs);
   } else {
     templatedGlobs = globs
       .map(glob => {
-        return globTemplate.replace('{glob}', glob)
+        return globTemplate.replace('{glob}', glob);
       })
-      .join(' ')
+      .join(' ');
   }
 
-  return templatedGlobs
+  return templatedGlobs;
 }
 
 export async function getFileChangesWithCommand(command: string): Promise<string[]> {
-  const {exitCode, stdout, stderr} = await getExecOutput(`/bin/bash -c "${command}"`)
-  core.debug(`Command result - stdout = ${stdout} and stderr = ${stderr}`)
+  const { exitCode, stdout, stderr } = await getExecOutput(`/bin/bash -c "${command}"`);
+  core.debug(`Command result - stdout = ${stdout} and stderr = ${stderr}`);
 
   if (exitCode !== 0 || stderr !== '') {
-    throw new Error(`Failed to get files - Exit Code ${exitCode} - ${stderr}`)
+    throw new Error(`Failed to get files - Exit Code ${exitCode} - ${stderr}`);
   }
 
   return stdout
     .split('\n')
     .map(s => s.trim())
-    .filter(line => line !== '')
+    .filter(line => line !== '');
 }
 
 export function getFilteredChangeMap(
@@ -60,23 +60,23 @@ export function getFilteredChangeMap(
           `Checking - ${changeType} ${lineStart} - ${fileChange} - ${escape(lineStart)} ${escape(
             fileChange,
           )}`,
-        )
+        );
         if (fileChange.startsWith(lineStart)) {
-          core.debug(`Matched! - ${changeType} ${lineStart} - ${fileChange}`)
-          return [changeType as GitChangeType, fileChange.replace(lineStart, '')]
+          core.debug(`Matched! - ${changeType} ${lineStart} - ${fileChange}`);
+          return [changeType as GitChangeType, fileChange.replace(lineStart, '')];
         }
       }
     })
-    .filter(s => s !== undefined) as FilteredChange[]
+    .filter(s => s !== undefined) as FilteredChange[];
 }
 
 export async function parseFileChanges(fileChanges: FilteredChange[]): Promise<FileChangeMap> {
-  const fileChangeMap = {ADDED: [], CHANGED: [], DELETED: []}
+  const fileChangeMap = { ADDED: [], CHANGED: [], DELETED: [] };
 
   return fileChanges.reduce((accumulator, [changeType, parsedFileChange]) => {
     return {
       ...accumulator,
       [changeType]: [...accumulator[changeType], parsedFileChange],
-    }
-  }, fileChangeMap)
+    };
+  }, fileChangeMap);
 }
