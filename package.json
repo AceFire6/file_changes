@@ -34,7 +34,7 @@
     "@types/node": "^16.18.7",
     "@types/rewire": "^2.5.28",
     "@types/tmp": "^0.2.3",
-    "@typescript-eslint/parser": "^5.46.0",
+    "@typescript-eslint/parser": "^5.53.0",
     "@vercel/ncc": "^0.36.0",
     "eslint": "^8.29.0",
     "eslint-config-prettier": "^8.5.0",
