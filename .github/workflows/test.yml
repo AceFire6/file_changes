@@ -10,25 +10,41 @@ jobs:
   build-action: # make sure build/ci work properly
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/cache@v3
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Cache npm packages
+        uses: actions/cache@v4
         with:
           path: 'node_modules'
           key: npm-v2-${{ hashFiles('package-lock.json') }}
-      - run: npm install --frozen-lockfile
-      - run: npm run all
+
+      - name: Install npm packages
+        run: npm install --frozen-lockfile
+
+      - name: Build, Format, Lint, Package, and Test
+        run: npm run all
 
   test-action: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/cache@v3
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Cache npm packages
+        uses: actions/cache@v4
         with:
           path: 'node_modules'
           key: npm-v2-${{ hashFiles('package-lock.json') }}
-      - run: npm install --frozen-lockfile
-      - run: npm run build && npm run package
-      - uses: ./
+
+      - name: Install npm packages
+        run: npm install --frozen-lockfile
+
+      - name: Build & Package
+        run: npm run build && npm run package
+
+      - name: Test built package
+        uses: ./
         id: action-test
         with:
           base-branch: 'test_changes'
