@@ -43,5 +43,5 @@ outputs:
     description: 'Any glob matches found'
 
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
