@@ -7,7 +7,7 @@ export enum GitChange {
   CHANGED = 'CHANGED',
   DELETED = 'DELETED',
 }
-export type GitChangeType = typeof GitChange[keyof typeof GitChange];
+export type GitChangeType = (typeof GitChange)[keyof typeof GitChange];
 
 interface FileChangeMap {
   ADDED: string[];
