@@ -72,24 +72,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: 'package.json'
-          registry-url: 'https://npm.pkg.github.com'
-          cache: 'pnpm'
-
-      - name: Install npm packages
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.PRIVATE_PACKAGE_TOKEN }}
-        run: pnpm install --frozen-lockfile
-
-      - name: Build
-        run: pnpm run build
-
       - name: Test built package
         uses: ./
         id: action-test
