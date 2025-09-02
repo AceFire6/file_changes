@@ -1,0 +1,53 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+  - repo: meta
+    hooks:
+      - id: check-hooks-apply
+      - id: check-useless-excludes
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-added-large-files
+      - id: check-shebang-scripts-are-executable
+      - id: check-json
+      - id: check-vcs-permalinks
+      - id: check-yaml
+        exclude: |
+          (?x)^(
+              pnpm-lock.yaml
+          )$
+      - id: no-commit-to-branch
+        args: [--branch, main]
+
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.17.2
+    hooks:
+      - id: yamlfmt
+        args: [-formatter, retain_line_breaks_single=true]
+        exclude: |
+          (?x)^(
+              pnpm-lock.yaml
+          )$
+
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.7
+    hooks:
+      - id: actionlint
+        name: Check GitHub Workflows
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.27.2
+    hooks:
+      - id: gitleaks
+
+  - repo: local
+    hooks:
+      - id: prettier
+        name: Prettier
+        language: system
+        entry: pnpm exec prettier -w
+        types: [file, non-executable]

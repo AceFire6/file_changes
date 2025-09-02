@@ -13,17 +13,25 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Cache npm packages
-        uses: actions/cache@v4
-        with:
-          path: 'node_modules'
-          key: npm-v2-${{ hashFiles('package-lock.json') }}
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
 
-      - name: Install npm packages
-        run: npm install --frozen-lockfile
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: 'package.json'
+          registry-url: 'https://npm.pkg.github.com'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Build, Format, Lint, Package, and Test
-        run: npm run all
+        run: |
+          pnpm run build
+          pnpm exec prettier --check .
+          pnpm run lint
+          pnpm run test
 
   test-action: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
@@ -31,17 +39,21 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Cache npm packages
-        uses: actions/cache@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
         with:
-          path: 'node_modules'
-          key: npm-v2-${{ hashFiles('package-lock.json') }}
+          node-version-file: 'package.json'
+          registry-url: 'https://npm.pkg.github.com'
+          cache: 'pnpm'
 
       - name: Install npm packages
-        run: npm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Build & Package
-        run: npm run build && npm run package
+        run: pnpm run build && pnpm run package
 
       - name: Test built package
         uses: ./

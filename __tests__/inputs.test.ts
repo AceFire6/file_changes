@@ -1,101 +1,90 @@
-import rewire from 'rewire';
-import { getInputs } from '../src/utils/inputs';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
-const inputs = rewire('../lib/utils/inputs');
+import { getInputs, parseChangeMapInput, parseFilterPatterns, splitLabelMapString } from 'src/utils/inputs';
 
-describe('test splitLabelMapString', () => {
-  const splitLabelMapString = inputs.__get__('splitLabelMapString');
+describe('splitLabelMapString', () => {
+    test('returns correct label/config tuple', () => {
+        const splitChangeMapLine = splitLabelMapString('python_files: {"globs": "*.py", "separateDeleted": true}', ':');
 
-  test('returns correct label/config tuple', () => {
-    const splitChangeMapLine = splitLabelMapString(
-      'python_files: {"globs": "*.py", "separateDeleted": true}',
-      ':',
-    );
-
-    expect(splitChangeMapLine).toEqual([
-      'python_files',
-      '{"globs": "*.py", "separateDeleted": true}',
-    ]);
-  });
-});
-
-describe('test parseChangeMapInput', () => {
-  const parseChangeMapInput = inputs.__get__('parseChangeMapInput');
-
-  test('returns correct value', async () => {
-    const changeMap = await parseChangeMapInput([
-      'python_files: {"globs": "*.py", "separateDeleted": true}',
-      'requirements: {"globs": "requirements/*.txt"}',
-    ]);
-
-    expect(changeMap).toEqual([
-      { label: 'python_files', config: { globs: '*.py', separateDeleted: true } },
-      {
-        label: 'requirements',
-        config: { globs: 'requirements/*.txt', separateDeleted: false },
-      },
-    ]);
-  });
-});
-
-describe('test parseFilterPatterns', () => {
-  const parseFilterPatterns = inputs.__get__('parseFilterPatterns');
-
-  test('returns correct value', async () => {
-    const filterPatterns = await parseFilterPatterns([
-      'ADDED: {"pattern": "A\\t"}',
-      'CHANGED: {"pattern": "M\\t"}',
-      'DELETED: {"pattern": "D\\t"}',
-    ]);
-
-    expect(filterPatterns).toEqual({
-      ADDED: 'A\t',
-      CHANGED: 'M\t',
-      DELETED: 'D\t',
+        expect(splitChangeMapLine).toEqual(['python_files', '{"globs": "*.py", "separateDeleted": true}']);
     });
-  });
 });
 
-describe('test getInputs', () => {
-  let revertProcessSet: () => void;
+describe('parseChangeMapInput', () => {
+    test('returns correct value', () => {
+        const changeMap = parseChangeMapInput([
+            'python_files: {"globs": "*.py", "separateDeleted": true}',
+            'requirements: {"globs": "requirements/*.txt"}',
+        ]);
 
-  beforeAll(async () => {
-    process.env['INPUT_BASE-BRANCH'] = 'base_branch';
-    process.env['INPUT_FILTER-PATTERNS'] = `
-      ADDED: {"pattern": "A\\t"}
-      CHANGED: {"pattern": "M\\t"}
-      DELETED: {"pattern": "D\\t"}
-    `;
-    process.env['INPUT_COMMAND'] = "cat {branchName} | grep '{glob}'";
-    process.env['INPUT_CHANGE-MAP'] = `
+        expect(changeMap).toEqual([
+            { label: 'python_files', config: { globs: '*.py', separateDeleted: true } },
+            {
+                label: 'requirements',
+                config: { globs: 'requirements/*.txt', separateDeleted: false },
+            },
+        ]);
+    });
+});
+
+describe('parseFilterPatterns', () => {
+    test('returns correct value', () => {
+        const filterPatterns = parseFilterPatterns([
+            String.raw`ADDED: "A\t"`,
+            String.raw`CHANGED: "M\t"`,
+            String.raw`DELETED: "D\t"`,
+        ]);
+
+        expect(filterPatterns).toStrictEqual({
+            ADDED: 'A\t',
+            CHANGED: 'M\t',
+            DELETED: 'D\t',
+        });
+    });
+});
+
+describe('getInputs', () => {
+    beforeEach(() => {
+        vi.stubEnv('INPUT_BASE-BRANCH', 'base_branch');
+        vi.stubEnv(
+            'INPUT_FILTER-PATTERNS',
+            String.raw`
+      ADDED: "A\t"
+      CHANGED: "M\t"
+      DELETED: "D\t"
+    `,
+        );
+        vi.stubEnv('INPUT_COMMAND', "cat {branchName} | grep '{glob}'");
+        vi.stubEnv(
+            'INPUT_CHANGE-MAP',
+            `
       python_files: {"globs": "*.py", "separateDeleted": true}
       requirements: {"globs": "requirements/*.txt"}
-    `;
-    revertProcessSet = inputs.__set__('process.env', process.env);
-  });
-
-  afterAll(async () => {
-    delete process.env['INPUT_CHANGE-MAP'];
-    revertProcessSet();
-  });
-
-  test('returns correct values', async () => {
-    const { fileChangeFindCommand, changeMap, filterPatterns } = await getInputs();
-
-    expect(fileChangeFindCommand).toEqual("cat base_branch | grep '{glob}'");
-
-    expect(changeMap).toEqual([
-      { label: 'python_files', config: { globs: '*.py', separateDeleted: true } },
-      {
-        label: 'requirements',
-        config: { globs: 'requirements/*.txt', separateDeleted: false },
-      },
-    ]);
-
-    expect(filterPatterns).toEqual({
-      ADDED: 'A\t',
-      CHANGED: 'M\t',
-      DELETED: 'D\t',
+    `,
+        );
     });
-  });
+
+    afterEach(() => {
+        vi.unstubAllEnvs();
+    });
+
+    test('returns correct values', () => {
+        const { fileChangeFindCommand, changeMap, filterPatterns } = getInputs();
+
+        expect(fileChangeFindCommand).toEqual("cat base_branch | grep '{glob}'");
+
+        expect(changeMap).toEqual([
+            { label: 'python_files', config: { globs: '*.py', separateDeleted: true } },
+            {
+                label: 'requirements',
+                config: { globs: 'requirements/*.txt', separateDeleted: false },
+            },
+        ]);
+
+        expect(filterPatterns).toEqual({
+            ADDED: 'A\t',
+            CHANGED: 'M\t',
+            DELETED: 'D\t',
+        });
+    });
 });

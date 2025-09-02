@@ -1,87 +1,124 @@
-import * as core from '@actions/core';
+import core from '@actions/core';
+import * as z from 'zod';
 
-interface ConfigMap {
-  globs: string | string[];
-  separateDeleted: boolean;
-}
-interface ChangeMap {
-  label: string;
-  config: ConfigMap;
-}
+type ConfigMap = {
+    globs: string | string[];
+    separateDeleted: boolean;
+};
+type ChangeMap = {
+    label: string;
+    config: ConfigMap;
+};
 
-export interface FilterPattern {
-  ADDED?: string;
-  CHANGED?: string;
-  DELETED?: string;
-}
+export type FilterPattern = {
+    ADDED?: string;
+    CHANGED?: string;
+    DELETED?: string;
+};
 
-interface Inputs {
-  changeMap: ChangeMap[];
-  filterPatterns: FilterPattern;
-  fileChangeFindCommand: string;
-  globTemplate: string;
-}
+type Inputs = {
+    changeMap: ChangeMap[];
+    filterPatterns: FilterPattern;
+    fileChangeFindCommand: string;
+    globTemplate: string;
+};
 
-function splitLabelMapString(splitString: string, separator: string): [string, string] {
-  const index = splitString.indexOf(separator);
+const ChangeMapSchema = z.object({
+    globs: z.union([z.string(), z.array(z.string())]),
+    separateDeleted: z.optional(z.boolean()),
+});
 
-  const label = splitString.substring(0, index).trim();
-  const config = splitString.substr(index + 1).trim();
+export function splitLabelMapString(splitString: string, separator: string): [string, string] {
+    const index = splitString.indexOf(separator);
 
-  return [label, config];
-}
+    const label = splitString.slice(0, Math.max(0, index)).trim();
+    const config = splitString.slice(index + 1).trim();
 
-async function parseLabelMapInput(changeMapInput: string[]): Promise<[string, string][]> {
-  return changeMapInput
-    .map(s => s.trim())
-    .filter(x => x !== '')
-    .map(value => splitLabelMapString(value, ':'));
-}
-
-async function parseChangeMapInput(changeMapInput: string[]): Promise<ChangeMap[]> {
-  return (await parseLabelMapInput(changeMapInput)).map(([label, jsonMap]) => {
-    const { globs, separateDeleted = false } = JSON.parse(jsonMap);
-    return { label, config: { globs, separateDeleted } };
-  });
+    return [label, config];
 }
 
-async function parseFilterPatterns(filterPatternsInput: string[]): Promise<FilterPattern> {
-  return (await parseLabelMapInput(filterPatternsInput))
-    .map(([label, patternMap]) => {
-      const { pattern } = JSON.parse(patternMap);
-      return [label, pattern];
-    })
-    .reduce((accumulator, [label, pattern]) => {
-      return { ...accumulator, [label]: pattern };
-    }, {}) as FilterPattern;
+function parseLabelMapInput(changeMapInput: string[]): [string, string][] {
+    const parsedLabelMapTuples: [string, string][] = [];
+
+    for (const changeInput of changeMapInput) {
+        const trimmedInput = changeInput.trim();
+        if (trimmedInput.length === 0) {
+            continue;
+        }
+
+        const splitLabelMap = splitLabelMapString(trimmedInput, ':');
+        parsedLabelMapTuples.push(splitLabelMap);
+    }
+
+    return parsedLabelMapTuples;
 }
 
-export async function getInputs(): Promise<Inputs> {
-  const baseBranchName = core.getInput('base-branch');
-  core.debug(`Base Branch Name - ${baseBranchName}`);
+export function parseChangeMapInput(changeMapInput: string[]): ChangeMap[] {
+    const labelMapTuples = parseLabelMapInput(changeMapInput);
+    const changeMap: ChangeMap[] = [];
 
-  let fileChangeFindCommand = core.getInput('command', { required: false });
-  // default is `git diff --name-status --no-renames {branchName} {globs}`
-  fileChangeFindCommand = fileChangeFindCommand.replace('{branchName}', baseBranchName);
-  core.debug(`Command - ${fileChangeFindCommand}`);
+    for (const [label, jsonMap] of labelMapTuples) {
+        const parsedInput = JSON.parse(jsonMap) as unknown;
+        const { globs, separateDeleted = false } = ChangeMapSchema.parse(parsedInput);
+        changeMap.push({
+            label,
+            config: { globs, separateDeleted },
+        });
+    }
 
-  const globTemplate = core.getInput('glob-template', { required: false });
-  // default is '{glob}'
-  core.debug(`Glob Template - ${globTemplate}`);
+    return changeMap;
+}
 
-  const filterPatternsInput = core.getMultilineInput('filter-patterns', {
-    required: false,
-  });
-  core.debug(`Filter Patterns Input - ${filterPatternsInput}`);
-  const filterPatterns = await parseFilterPatterns(filterPatternsInput);
-  const filterPatternsStr = Object.entries(filterPatterns)
-    .map(s => s.join(':'))
-    .join(',');
-  core.debug(`Change Filters - ${filterPatternsStr}`);
+type AllowedFilter = keyof FilterPattern;
+function allowedFilterLabel(label: string): label is AllowedFilter {
+    const allowedFilters: AllowedFilter[] = ['ADDED', 'CHANGED', 'DELETED'];
+    const allowedFiltersSet = new Set(allowedFilters as string[]);
 
-  const changeMapInput = core.getMultilineInput('change-map');
-  core.debug(`Change Map Input - ${changeMapInput}`);
-  const changeMap = await parseChangeMapInput(changeMapInput);
+    return allowedFiltersSet.has(label);
+}
 
-  return { changeMap, filterPatterns, fileChangeFindCommand, globTemplate };
+export function parseFilterPatterns(filterPatternsInput: string[]): FilterPattern {
+    const labelFilterTuples = parseLabelMapInput(filterPatternsInput);
+    const filterPattern: FilterPattern = {};
+
+    for (const [label, pattern] of labelFilterTuples) {
+        if (!allowedFilterLabel(label)) {
+            core.warning(`Filter label ${label} is not allowed`);
+            continue;
+        }
+
+        filterPattern[label] = pattern.includes('"') ? (JSON.parse(pattern) as string) : pattern;
+    }
+
+    return filterPattern;
+}
+
+export function getInputs(): Inputs {
+    const baseBranchName = core.getInput('base-branch');
+    core.debug(`Base Branch Name - ${baseBranchName}`);
+
+    let fileChangeFindCommand = core.getInput('command', { required: false });
+    // default is `git diff --name-status --no-renames {branchName} -- {globs}`
+    fileChangeFindCommand = fileChangeFindCommand.replace('{branchName}', baseBranchName);
+    core.debug(`Command - ${fileChangeFindCommand}`);
+
+    const globTemplate = core.getInput('glob-template', { required: false });
+    // default is '{glob}'
+    core.debug(`Glob Template - ${globTemplate}`);
+
+    const filterPatternsInput = core.getMultilineInput('filter-patterns', {
+        required: false,
+    });
+    core.debug(`Filter Patterns Input - ${filterPatternsInput.join(', ')}`);
+    const filterPatterns = parseFilterPatterns(filterPatternsInput);
+    const filterPatternsString = Object.entries(filterPatterns)
+        .map((s) => s.join(':'))
+        .join(',');
+    core.debug(`Change Filters - ${filterPatternsString}`);
+
+    const changeMapInput = core.getMultilineInput('change-map');
+    core.debug(`Change Map Input - ${changeMapInput.join(', ')}`);
+    const changeMap = parseChangeMapInput(changeMapInput);
+
+    return { changeMap, filterPatterns, fileChangeFindCommand, globTemplate };
 }
