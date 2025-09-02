@@ -4,5 +4,13 @@ import { globalIgnores } from 'eslint/config';
 export default getEsLintConfig({
     buildDir: 'dist',
     testDirectory: '__tests__',
-    additionalConfig: [globalIgnores(['dist/**'])],
+    additionalConfig: [
+        globalIgnores(['dist/**']),
+        {
+            files: ['rollup.config.ts'],
+            rules: {
+                'import-x/no-default-export': 'off',
+            },
+        },
+    ],
 });
