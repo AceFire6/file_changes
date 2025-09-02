@@ -65,18 +65,14 @@ export async function run(): Promise<void> {
         core.setOutput(`any-matches`, anyFilesChanged);
         core.debug(`Finished ${new Date().toTimeString()}`);
     } catch (error: unknown) {
-        if (error === null || (typeof error !== 'string' && typeof error !== 'object')) {
-            core.setFailed('Unknown error encountered');
+        if (error instanceof Error) {
+            core.debug(`Stack trace: ${error.stack}`);
+            core.setFailed(error);
             return;
         }
 
         if (typeof error === 'string') {
             core.setFailed(`Encountered error - ${error}`);
-            return;
-        }
-
-        if ('message' in error && typeof error.message === 'string') {
-            core.setFailed(error.message);
             return;
         }
 

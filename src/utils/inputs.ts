@@ -54,10 +54,12 @@ function parseLabelMapInput(changeMapInput: string[]): [string, string][] {
 }
 
 export function parseChangeMapInput(changeMapInput: string[]): ChangeMap[] {
+    core.debug(`ChangeMapInput: ${JSON.stringify(changeMapInput)}`);
     const labelMapTuples = parseLabelMapInput(changeMapInput);
     const changeMap: ChangeMap[] = [];
 
     for (const [label, jsonMap] of labelMapTuples) {
+        core.debug(`label=${label} jsonMap=${jsonMap}`);
         const parsedInput = JSON.parse(jsonMap) as unknown;
         const { globs, separateDeleted = false } = ChangeMapSchema.parse(parsedInput);
         changeMap.push({

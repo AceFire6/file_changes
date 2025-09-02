@@ -1849,7 +1849,7 @@ var $ZodObjectJIT = /* @__PURE__ */ $constructor("$ZodObjectJIT", (inst, def) =>
             path: iss.path ? [${k}, ...iss.path] : [${k}]
           })));
         }
-        
+
         if (${id}.value === undefined) {
           if (${k} in input) {
             newResult[${k}] = undefined;
@@ -3360,9 +3360,11 @@ function parseLabelMapInput(changeMapInput) {
   return parsedLabelMapTuples;
 }
 function parseChangeMapInput(changeMapInput) {
+  core2.debug(`ChangeMapInput: ${JSON.stringify(changeMapInput)}`);
   const labelMapTuples = parseLabelMapInput(changeMapInput);
   const changeMap = [];
   for (const [label, jsonMap] of labelMapTuples) {
+    core2.debug(`label=${label} jsonMap=${jsonMap}`);
     const parsedInput = JSON.parse(jsonMap);
     const { globs, separateDeleted = false } = ChangeMapSchema.parse(parsedInput);
     changeMap.push({
@@ -3449,16 +3451,13 @@ async function run() {
     core3.setOutput(`any-matches`, anyFilesChanged);
     core3.debug(`Finished ${(/* @__PURE__ */ new Date()).toTimeString()}`);
   } catch (error) {
-    if (error === null || typeof error !== "string" && typeof error !== "object") {
-      core3.setFailed("Unknown error encountered");
+    if (error instanceof Error) {
+      core3.debug(`Stack trace: ${error.stack}`);
+      core3.setFailed(error);
       return;
     }
     if (typeof error === "string") {
       core3.setFailed(`Encountered error - ${error}`);
-      return;
-    }
-    if ("message" in error && typeof error.message === "string") {
-      core3.setFailed(error.message);
       return;
     }
     core3.setFailed("Unknown error encountered");

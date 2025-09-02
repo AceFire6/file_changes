@@ -15,6 +15,7 @@ describe('parseChangeMapInput', () => {
         const changeMap = parseChangeMapInput([
             'python_files: {"globs": "*.py", "separateDeleted": true}',
             'requirements: {"globs": "requirements/*.txt"}',
+            'tests: {"globs": ["tests/*", "__tests__/*"]}',
         ]);
 
         expect(changeMap).toEqual([
@@ -22,6 +23,10 @@ describe('parseChangeMapInput', () => {
             {
                 label: 'requirements',
                 config: { globs: 'requirements/*.txt', separateDeleted: false },
+            },
+            {
+                label: 'tests',
+                config: { globs: ['tests/*', '__tests__/*'], separateDeleted: false },
             },
         ]);
     });
