@@ -5,10 +5,10 @@ var __export = (target, all) => {
 };
 
 // src/main.ts
-import core3 from "@actions/core";
+import * as core3 from "@actions/core";
 
 // src/file-changes.ts
-import core from "@actions/core";
+import * as core from "@actions/core";
 import { getExecOutput } from "@actions/exec";
 function getTemplatedGlobs(globTemplate, globs) {
   let templatedGlobs;
@@ -53,7 +53,7 @@ function parseFileChanges(fileChanges) {
 }
 
 // src/utils/inputs.ts
-import core2 from "@actions/core";
+import * as core2 from "@actions/core";
 
 // node_modules/.pnpm/zod@4.1.5/node_modules/zod/v4/core/core.js
 var NEVER = Object.freeze({
@@ -3465,4 +3465,7 @@ async function run() {
   }
 }
 void run();
+export {
+  run
+};
 //# sourceMappingURL=index.js.map

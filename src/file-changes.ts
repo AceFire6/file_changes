@@ -1,4 +1,4 @@
-import core from '@actions/core';
+import * as core from '@actions/core';
 import { getExecOutput } from '@actions/exec';
 
 import type { FilterPattern } from './utils/inputs';

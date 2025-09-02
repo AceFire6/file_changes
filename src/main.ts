@@ -1,9 +1,9 @@
-import core from '@actions/core';
+import * as core from '@actions/core';
 
 import { getFileChangesWithCommand, getFilteredChangeMap, getTemplatedGlobs, parseFileChanges } from './file-changes';
 import { getInputs } from './utils/inputs';
 
-async function run(): Promise<void> {
+export async function run(): Promise<void> {
     try {
         // Get Inputs
         const { fileChangeFindCommand, globTemplate, changeMap, filterPatterns } = getInputs();
