@@ -1,5 +1,9 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+
+# Exclude pnpm-lock.yaml and all built files from all checks
+exclude: (?x)^( pnpm-lock.yaml| dist/.+ )$
+
 repos:
   - repo: meta
     hooks:
@@ -16,10 +20,6 @@ repos:
       - id: check-json
       - id: check-vcs-permalinks
       - id: check-yaml
-        exclude: |
-          (?x)^(
-              pnpm-lock.yaml
-          )$
       - id: no-commit-to-branch
         args: [--branch, main]
 
@@ -28,10 +28,6 @@ repos:
     hooks:
       - id: yamlfmt
         args: [-formatter, retain_line_breaks_single=true]
-        exclude: |
-          (?x)^(
-              pnpm-lock.yaml
-          )$
 
   - repo: https://github.com/rhysd/actionlint
     rev: v1.7.7
