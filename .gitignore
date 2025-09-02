@@ -14,8 +14,8 @@
 !/package.json
 !/pnpm-lock.yaml
 !/README.md
+!/rollup.config.ts
 !/tsconfig.json
-!/tsup.config.ts
 !/vitest.config.ts
 
 !/.github/

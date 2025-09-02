@@ -1,3 +1,7 @@
+.gitignore
+.gitattributes
+.npmrc
+.prettierignore
 dist/
 pnpm-lock.yaml
 node_modules/
