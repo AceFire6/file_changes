@@ -20,8 +20,13 @@
   "keywords": [
     "actions",
     "node",
-    "setup"
+    "filter"
   ],
+  "packageManager": "pnpm@10.12.4",
+  "engines": {
+    "node": ">=24.0.0",
+    "pnpm": "^10.12.4"
+  },
   "author": "Jethro Muller",
   "license": "MIT",
   "dependencies": {
