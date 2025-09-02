@@ -20,7 +20,7 @@ inputs:
     default: "'{glob}'"
   filter-patterns:
     required: false
-    description: >-
+    description: |
       A map with keys ADDED, CHANGED, and DELETED as keys and a pattern as a value. The matching is done by checking if the file change starts with the pattern.
     default: |
       ADDED: "A\t"
@@ -28,8 +28,16 @@ inputs:
       DELETED: "D\t"
   change-map:
     required: true
-    description: >-
-      A multi-line map of changes to find. Each input in the change-map has two (or three with separateDeleted set to true) corresponding outputs. For a given key in change-map `code` there will be outputs `code`, a list of all the changed files, `any-code`, a boolean indicating if there were any changes that matched the glob filters, and `deleted-code` if `separateDeleted` is true. eg. python_files: {"globs": "*.py", "separateDeleted": false} requirements: {"globs": "requirements/*.txt"} py_and_requirements: {"globs": ["requirements/*.txt", "*.py"]} The separateDeleted boolean determines if we separate out deleted files or if they're included in the change list. #magic___^_^___line
+    description: |
+      A multi-line map of changes to find. Each input in the change-map has two (or three with separateDeleted set to true) corresponding outputs.
+      For a given key in change-map `code` there will be outputs `code`, a list of all the changed files, `any-code`, a boolean indicating if there were any changes that matched the glob filters, and `deleted-code` if `separateDeleted` is true.
+
+      Example:
+      python_files: {"globs": "*.py", "separateDeleted": false}
+      requirements: {"globs": "requirements/*.txt"}
+      py_and_requirements: {"globs": ["requirements/*.txt", "*.py"]}
+
+      The separateDeleted boolean determines if we separate out deleted files or if they're included in the change list.
 outputs:
   any-matches:
     description: 'A boolean value indicating if any glob matches were found'
