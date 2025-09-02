@@ -6,9 +6,21 @@ on:
       - main
       - 'releases/*'
 
+concurrency:
+  group: build-and-test-${{ github.ref_name }}
+  cancel-in-progress: true
+
+permissions: {}
+
 jobs:
-  build-action: # make sure build/ci work properly
-    runs-on: ubuntu-latest
+  build-action:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+
+    permissions:
+      contents: read
+      packages: read
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -34,7 +46,13 @@ jobs:
           pnpm run test
 
   test-action: # make sure the action works on a clean machine without building
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+
+    permissions:
+      contents: read
+      packages: read
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
