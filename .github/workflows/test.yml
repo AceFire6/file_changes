@@ -19,7 +19,6 @@ jobs:
 
     permissions:
       contents: read
-      packages: read
 
     steps:
       - name: Checkout repo
@@ -36,9 +35,13 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.PRIVATE_PACKAGE_TOKEN }}
         run: pnpm install --frozen-lockfile
 
       - name: Build, Format, Lint, Package, and Test
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.PRIVATE_PACKAGE_TOKEN }}
         run: |
           pnpm run build
           pnpm exec prettier --check .
@@ -51,7 +54,6 @@ jobs:
 
     permissions:
       contents: read
-      packages: read
 
     steps:
       - name: Checkout repo
@@ -68,10 +70,12 @@ jobs:
           cache: 'pnpm'
 
       - name: Install npm packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.PRIVATE_PACKAGE_TOKEN }}
         run: pnpm install --frozen-lockfile
 
-      - name: Build & Package
-        run: pnpm run build && pnpm run package
+      - name: Build
+        run: pnpm run build
 
       - name: Test built package
         uses: ./
