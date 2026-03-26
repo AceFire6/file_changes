@@ -66,11 +66,14 @@ any-matches:
 
 # one set of outputs for each entry in change-map
 <change-map.0.0>: '<file_changed1> <file_changed2> ...'
+# Returns a json array of the changes that can be used with fromJSON in the workflow
+<change-map.0.0>-json: '["<file_changed1>", "<file_changed2>", ...]'
 # Value set to make boolean checks simpler - 'true' or 'false'
 # 'false' if there were no changes found
 any-<change-map.0.0>: 'true'
 # If separate deletes key is true
 deleted-<change-map.0.0>: '<file_deleted1> <file_deleted2> ...'
+deleted-<change-map.0.0>-json: '<file_deleted1> <file_deleted2> ...'
 ```
 
 eg. Referring back to the inputs example of a Python project.

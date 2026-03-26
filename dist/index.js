@@ -30328,6 +30328,7 @@ async function run() {
             if (separateDeleted) {
                 // If we must separate deleted, we do
                 coreExports.setOutput(`deleted-${label}`, deletedFiles.join(' '));
+                coreExports.setOutput(`deleted-${label}-json`, deletedFiles);
             }
             else {
                 // If we don't need to separate deleted we add them to
@@ -30336,6 +30337,8 @@ async function run() {
             }
             // Set the plain output
             coreExports.setOutput(label, existingFileChanges.join(' '));
+            // Set the JSON output - this should result in a JSON array
+            coreExports.setOutput(`${label}-json`, existingFileChanges);
             // Set the boolean flag to indicate any changes were found for this label
             coreExports.setOutput(`any-${label}`, globChanges);
         }

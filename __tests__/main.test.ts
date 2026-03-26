@@ -5,8 +5,12 @@ import process from 'node:process';
 import tmp from 'tmp';
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 
+function escapeRegex(string: string): string {
+    return string.replaceAll(/[/\-\\^$*+?.()|[\]{}]/g, String.raw`\$&`);
+}
+
 function regexOutput(fieldName: string, value: string): RegExp {
-    return new RegExp(`${fieldName}<<(?<delim>ghadelimiter_.+)\\n${value}\\n\\k<delim>`);
+    return new RegExp(`${fieldName}<<(?<delim>ghadelimiter_.+)\\n${escapeRegex(value)}\\n\\k<delim>`);
 }
 
 describe('main action', () => {
@@ -70,18 +74,23 @@ describe('main action', () => {
 
         const expectedPngOutput = [
             regexOutput('deleted-png', ''),
+            regexOutput('deleted-png-json', JSON.stringify([])),
             regexOutput('png', 'added_img.png changed_img.png'),
+            regexOutput('png-json', JSON.stringify(['added_img.png', 'changed_img.png'])),
             regexOutput('any-png', 'true'),
         ];
 
         const expectedTxtOutput = [
             regexOutput('deleted-txt', 'deleted_text.txt'),
+            regexOutput('deleted-txt-json', JSON.stringify(['deleted_text.txt'])),
             regexOutput('txt', 'added_text.txt changed_text.txt'),
+            regexOutput('txt-json', JSON.stringify(['added_text.txt', 'changed_text.txt'])),
             regexOutput('any-txt', 'true'),
         ];
 
         const expectedMissingOutput = [
             regexOutput('missing', ''),
+            regexOutput('missing-json', JSON.stringify([])),
             regexOutput('any-missing', 'false'),
             regexOutput('any-matches', 'true'),
         ];

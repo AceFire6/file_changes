@@ -48,6 +48,7 @@ export async function run(): Promise<void> {
             if (separateDeleted) {
                 // If we must separate deleted, we do
                 core.setOutput(`deleted-${label}`, deletedFiles.join(' '));
+                core.setOutput(`deleted-${label}-json`, deletedFiles);
             } else {
                 // If we don't need to separate deleted we add them to
                 // the existing group of ADDED & CHANGED
@@ -56,6 +57,8 @@ export async function run(): Promise<void> {
 
             // Set the plain output
             core.setOutput(label, existingFileChanges.join(' '));
+            // Set the JSON output - this should result in a JSON array
+            core.setOutput(`${label}-json`, existingFileChanges);
             // Set the boolean flag to indicate any changes were found for this label
             core.setOutput(`any-${label}`, globChanges);
         }
